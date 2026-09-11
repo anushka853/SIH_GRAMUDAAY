@@ -26,32 +26,32 @@ export default function PeerPooling() {
   };
 
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-8 pb-16 text-slate-900">
       
-      {/* Header Banner */}
-      <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-teal-950/90 via-slate-900 to-emerald-950/90 border border-teal-500/30 shadow-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+      {/* Header Banner - Light Theme */}
+      <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-teal-500/10 via-emerald-500/5 to-white border border-teal-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="bg-teal-500/20 text-teal-400 border border-teal-500/30 text-xs font-extrabold px-3 py-1 rounded-full flex items-center gap-1.5">
-              <HeartHandshake className="w-3.5 h-3.5" /> Broker-Free Community Finance
+            <span className="bg-teal-50 text-teal-800 border border-teal-200 text-xs font-extrabold px-3 py-1 rounded-full flex items-center gap-1.5">
+              <HeartHandshake className="w-3.5 h-3.5 text-teal-600" /> Broker-Free Community Finance
             </span>
-            <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-extrabold px-3 py-1 rounded-full">
+            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-extrabold px-3 py-1 rounded-full">
               SCA Verified Peer Pooling
             </span>
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-100 tracking-tight">
-            Peer Micro-Investment Pool for Beneficiary Margin Capital
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+            {t('peerPoolingTitle')}
           </h1>
-          <p className="text-xs text-slate-300 max-w-2xl mt-1 leading-relaxed">
+          <p className="text-xs text-slate-600 max-w-2xl mt-1 leading-relaxed">
             Eliminating intermediary brokers and predatory moneylenders. Rural peers, relatives, and village SHG cooperatives pool remaining 10% margin money directly to unlock government loan eligibility.
           </p>
         </div>
 
         <button
           onClick={() => speak(`Peer Micro-Investment Pool. Here rural entrepreneurs can raise missing 10 percent margin money from trusted local community members without brokers.`)}
-          className="px-4 py-2 bg-teal-950 text-teal-400 border border-teal-800 rounded-xl text-xs font-bold flex items-center gap-2"
+          className="px-4 py-2 bg-teal-50 text-teal-800 border border-teal-200 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer"
         >
-          <Sparkles className="w-4 h-4 text-amber-400" /> Audio Explanation
+          <Sparkles className="w-4 h-4 text-amber-600" /> Audio Explanation
         </button>
       </div>
 
@@ -63,40 +63,40 @@ export default function PeerPooling() {
           return (
             <div
               key={pool.id}
-              className="glass-panel p-6 rounded-3xl space-y-4 border-slate-800 hover:border-teal-500/40 transition-all shadow-xl"
+              className="bg-white p-6 rounded-3xl space-y-4 border border-slate-200/90 hover:border-teal-400 transition-all shadow-sm"
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <span className="text-[11px] font-bold text-teal-400 uppercase tracking-wider">{pool.category}</span>
-                  <h3 className="text-xl font-bold text-slate-100 mt-1">{pool.ventureTitle}</h3>
-                  <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                  <span className="text-[11px] font-bold text-teal-700 uppercase tracking-wider">{pool.category}</span>
+                  <h3 className="text-xl font-extrabold text-slate-900 mt-1">{pool.ventureTitle}</h3>
+                  <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
                     <Users className="w-3.5 h-3.5 text-slate-400" /> {pool.entrepreneurName} ({pool.location})
                   </p>
                 </div>
 
-                <span className="px-3 py-1 bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs font-extrabold rounded-full flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-amber-400" /> SCA Verified
+                <span className="px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-extrabold rounded-full flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-amber-600" /> SCA Verified
                 </span>
               </div>
 
-              <p className="text-xs text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800 leading-relaxed">
+              <p className="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 leading-relaxed">
                 "{pool.story}"
               </p>
 
               {/* Progress Bar */}
               <div className="space-y-2">
                 <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-slate-400">
-                    Raised: <strong className="text-emerald-400">{formatINR(pool.raisedMarginCurrent)}</strong>
+                  <span className="text-slate-500">
+                    Raised: <strong className="text-emerald-700">{formatINR(pool.raisedMarginCurrent)}</strong>
                   </span>
-                  <span className="text-slate-400">
-                    Target Margin: <strong className="text-amber-400">{formatINR(pool.requiredMarginTotal)}</strong>
+                  <span className="text-slate-500">
+                    Target Margin: <strong className="text-amber-700">{formatINR(pool.requiredMarginTotal)}</strong>
                   </span>
                 </div>
 
-                <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-800">
+                <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden border border-slate-300">
                   <div
-                    className="bg-gradient-to-r from-teal-500 to-emerald-400 h-full rounded-full transition-all duration-500"
+                    className="bg-gradient-to-r from-teal-500 to-emerald-500 h-full rounded-full transition-all duration-500"
                     style={{ width: `${percentRaised}%` }}
                   ></div>
                 </div>
@@ -110,7 +110,7 @@ export default function PeerPooling() {
               {/* Action Button */}
               <button
                 onClick={() => setSelectedPoolId(pool.id)}
-                className="w-full py-3 rounded-xl text-xs font-extrabold bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white shadow-lg shadow-teal-950 transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-xl text-xs font-extrabold bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <HeartHandshake className="w-4 h-4" />
                 <span>Micro-Invest in this Peer Margin Pool</span>
@@ -122,26 +122,26 @@ export default function PeerPooling() {
 
       {/* Contribution Modal */}
       {selectedPoolId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h3 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-              <HeartHandshake className="w-5 h-5 text-teal-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h3 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+              <HeartHandshake className="w-5 h-5 text-teal-600" />
               Contribute to Peer Margin Pool
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Direct peer transaction. No broker fees or hidden commissions.
             </p>
 
             {contributionSuccess ? (
-              <div className="p-4 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-2xl text-center space-y-2">
-                <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-400" />
+              <div className="p-4 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-2xl text-center space-y-2">
+                <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-600" />
                 <h4 className="font-bold text-sm">Micro-Investment Successful!</h4>
-                <p className="text-xs text-slate-300">Updated campaign total in real-time.</p>
+                <p className="text-xs text-slate-600">Updated campaign total in real-time.</p>
               </div>
             ) : (
               <form onSubmit={handleContribute} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Contribution Amount (₹)
                   </label>
                   <div className="relative">
@@ -153,7 +153,7 @@ export default function PeerPooling() {
                       max="10000"
                       value={contributionAmount}
                       onChange={(e) => setContributionAmount(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-4 py-2.5 text-sm font-bold text-emerald-400 focus:outline-none focus:border-teal-500"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-4 py-2.5 text-sm font-bold text-emerald-700 focus:outline-none focus:border-teal-500 focus:bg-white"
                     />
                   </div>
                 </div>
@@ -164,10 +164,10 @@ export default function PeerPooling() {
                       key={amt}
                       type="button"
                       onClick={() => setContributionAmount(amt)}
-                      className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border ${
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border cursor-pointer ${
                         Number(contributionAmount) === amt
                           ? 'bg-teal-600 text-white border-teal-500'
-                          : 'bg-slate-950 text-slate-400 border-slate-800'
+                          : 'bg-slate-50 text-slate-700 border-slate-200'
                       }`}
                     >
                       ₹{amt}
@@ -179,13 +179,13 @@ export default function PeerPooling() {
                   <button
                     type="button"
                     onClick={() => setSelectedPoolId(null)}
-                    className="w-1/2 py-2.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700"
+                    className="w-1/2 py-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="w-1/2 py-2.5 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-950"
+                    className="w-1/2 py-2.5 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-md cursor-pointer"
                   >
                     Confirm Peer Transfer
                   </button>
