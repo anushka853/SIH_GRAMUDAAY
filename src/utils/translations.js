@@ -103,7 +103,27 @@ export const TRANSLATIONS = {
     
     // Schemes Modal
     publicSchemesTitle: 'Government Concessional Schemes & Capital Subsidy Directory',
-    publicSchemesSub: 'All registered users, bank officers, and citizens have transparent 24/7 access to explore official government financial assistance, interest subventions, and capital grants.'
+    publicSchemesSub: 'All registered users, bank officers, and citizens have transparent 24/7 access to explore official government financial assistance, interest subventions, and capital grants.',
+
+    // ChatGPT Sidebar & Rural Chat Assistant
+    chatgptNewChat: 'New AI Rural Chat',
+    chatgptSidebarReports: 'My Generated Reports',
+    chatgptSidebarPeerPool: 'Peer Investment Pools',
+    chatgptSidebarSchemes: 'Govt Schemes Explorer',
+    chatgptSidebarBankPortal: 'Bank Officer Portal',
+    chatgptSidebarAdminPortal: 'System Admin Dashboard',
+    chatgptSidebarSettings: 'Settings & Language',
+    chatgptRuralAssistantTitle: 'GramUday AI Conversational Assistant',
+    chatgptRuralAssistantSub: 'Natural voice & chat assistant for rural entrepreneurs to check 10% margin loan eligibility, government schemes, and enterprise feasibility.',
+    chatgptGreetingMsg: 'Namaste! I am your GramUday AI Assistant. You do not need to fill complex forms. Simply tell me your available margin money (e.g. ₹15,000), village/location (e.g. Sualkuchi), or proposed business idea using voice or typing below.',
+    chatgptPromptChip1: '₹15,000 margin in Sualkuchi for Handloom Weaving',
+    chatgptPromptChip2: '₹50,000 margin in Majuli for Pottery & Crafts',
+    chatgptPromptChip3: '₹1,00,000 margin in Tezpur for Organic Dairy',
+    chatgptReportHintTitle: 'Report & 10% Margin Loan Calculation Saved!',
+    chatgptReportHintDesc: 'Your 90% bank loan eligibility, government scheme match, quarterly EMI schedule, and hyper-local market feasibility have been automatically computed & saved above.',
+    chatgptViewFullReportBtn: 'View Full Structured Report',
+    chatgptAskPlaceholder: 'Type or speak: e.g. I have ₹15,000 in Sualkuchi for Dairy...',
+    chatgptSendBtn: 'Send Message'
   },
   hi: {
     appTitle: 'ग्रामउदय AI',
@@ -188,7 +208,27 @@ export const TRANSLATIONS = {
     publishSchemeBtn: 'ग्रामउदय सिस्टम डेटाबेस में नई योजना प्रकाशित करें',
     
     publicSchemesTitle: 'सरकारी रियायती योजनाएं और पूंजी सब्सिडी निर्देशिका',
-    publicSchemesSub: 'सभी पंजीकृत उपयोगकर्ताओं, बैंक अधिकारियों और नागरिकों के पास आधिकारिक सरकारी वित्तीय सहायता की 24/7 पारदर्शी पहुंच है।'
+    publicSchemesSub: 'सभी पंजीकृत उपयोगकर्ताओं, बैंक अधिकारियों और नागरिकों के पास आधिकारिक सरकारी वित्तीय सहायता की 24/7 पारदर्शी पहुंच है।',
+
+    // ChatGPT Sidebar & Rural Chat Assistant
+    chatgptNewChat: 'नया AI ग्रामीण चैट',
+    chatgptSidebarReports: 'मेरी जनरेट की गई रिपोर्ट',
+    chatgptSidebarPeerPool: 'पीयर निवेश पूल',
+    chatgptSidebarSchemes: 'सरकारी योजनाएं निर्देशिका',
+    chatgptSidebarBankPortal: 'बैंक अधिकारी पोर्टल',
+    chatgptSidebarAdminPortal: 'सिस्टम एडमिन डैशबोर्ड',
+    chatgptSidebarSettings: 'सेटिंग्स और भाषा',
+    chatgptRuralAssistantTitle: 'ग्रामउदय AI संवादात्मक सहायक',
+    chatgptRuralAssistantSub: 'ग्रामीण उद्यमियों के लिए सरल वॉयस और चैट सहायक जो 10% मार्जिन ऋण पात्रता, योजनाएं और रिपोर्ट की गणना करता है।',
+    chatgptGreetingMsg: 'नमस्ते! मैं आपका ग्रामउदय AI सहायक हूँ। आपको कठिन फॉर्म भरने की आवश्यकता नहीं है। मुझे अपनी मार्जिन राशि (जैसे ₹15,000), गांव या व्यवसाय विचार बोलकर या लिखकर बताएं।',
+    chatgptPromptChip1: 'सुआलकुची में हथकरघा बुनाई के लिए ₹15,000 मार्जिन',
+    chatgptPromptChip2: 'माजुली में मिट्टी के बर्तन के लिए ₹50,000 मार्जिन',
+    chatgptPromptChip3: 'तेजपुर में ऑर्गेनिक डेयरी के लिए ₹1,00,000 मार्जिन',
+    chatgptReportHintTitle: 'रिपोर्ट एवं 10% मार्जिन ऋण गणना सहेजी गई!',
+    chatgptReportHintDesc: 'आपकी 90% बैंक ऋण पात्रता, योजना मिलान, EMI अनुसूची और बाजार व्यवहार्यता स्वतः तैयार कर सहेज ली गई है।',
+    chatgptViewFullReportBtn: 'पूर्ण विस्तृत रिपोर्ट देखें',
+    chatgptAskPlaceholder: 'लिखें या बोलें: जैसे मेरे पास डेयरी के लिए ₹15,000 हैं...',
+    chatgptSendBtn: 'संदेश भेजें'
   },
   as: {
     appTitle: 'গ্ৰামউদয় AI',
@@ -273,7 +313,27 @@ export const TRANSLATIONS = {
     publishSchemeBtn: 'নতুন আঁচনি প্ৰকাশ কৰক',
     
     publicSchemesTitle: 'চৰকাৰী ৰেহাই আঁচনি আৰু মূলধন অনুদান নিৰ্দেশিকা',
-    publicSchemesSub: 'সকলো ব্যৱহাৰকাৰী আৰু নাগৰিকৰ বাবে চৰকাৰী বিত্তীয় সাহায্যৰ স্বচ্ছ ২৪/৭ সুবিধা।'
+    publicSchemesSub: 'সকলো ব্যৱহাৰকাৰী আৰু নাগৰিকৰ বাবে চৰকাৰী বিত্তীয় সাহায্যৰ স্বচ্ছ ২৪/৭ সুবিধা।',
+
+    // ChatGPT Sidebar & Rural Chat Assistant
+    chatgptNewChat: 'নতুন AI গ্ৰাম্য চেট',
+    chatgptSidebarReports: 'মোৰ প্ৰস্তুত কৰা প্ৰতিবেদন',
+    chatgptSidebarPeerPool: 'পীয়ৰ বিনিয়োগ পুল',
+    chatgptSidebarSchemes: 'চৰকাৰী আঁচনি নিৰ্দেশিকা',
+    chatgptSidebarBankPortal: 'বেংক বিষয়া পৰ্টেল',
+    chatgptSidebarAdminPortal: 'চিষ্টেম এডমিন ডেশ্ববৰ্ড',
+    chatgptSidebarSettings: 'চেটিংছ আৰু ভাষা',
+    chatgptRuralAssistantTitle: 'গ্ৰামউদয় AI কথোপকথন সহকাৰী',
+    chatgptRuralAssistantSub: 'গ্ৰাম্য উদ্যমীৰ বাবে ১০% মাৰ্জিন ঋণ যোগ্যতা পৰীক্ষাৰ সহকাৰী।',
+    chatgptGreetingMsg: 'নমস্কাৰ! মই আপোনাৰ গ্ৰামউদয় AI সহকাৰী। আপুনি জটিল ফৰ্ম পূৰণ কৰিব নালাগে। আপোনাৰ মাৰ্জিন ধন আৰু গাঁৱৰ নাম কওক বা লিখক।',
+    chatgptPromptChip1: 'শুৱালকুছিত তাত শিল্পৰ বাবে ১৫,০০০ টকা',
+    chatgptPromptChip2: 'মাজুলীত মৃৎশিল্পৰ বাবে ৫০,০০০ টকা',
+    chatgptPromptChip3: 'তেজপুৰত ডেইৰীৰ বাবে ১,০০,০০০ টকা',
+    chatgptReportHintTitle: 'প্ৰতিবেদন আৰু ১০% মাৰ্জিন হিসাব সংৰক্ষিত!',
+    chatgptReportHintDesc: 'আপোনাৰ ৯০% ঋণ যোগ্যতা আৰু চৰকাৰী আঁচনি প্ৰতিবেদন স্বয়ংক্ৰিয়ভাৱে সংৰক্ষণ কৰা হৈছে।',
+    chatgptViewFullReportBtn: 'সম্পূৰ্ণ প্ৰতিবেদন চাওক',
+    chatgptAskPlaceholder: 'লিখক বা কওক: যেনে মোৰ ১৫,০০০ টকা আছে...',
+    chatgptSendBtn: 'প্ৰেৰণ কৰক'
   },
   bn: {
     appTitle: 'গ্রামউদয় AI',
@@ -358,6 +418,26 @@ export const TRANSLATIONS = {
     publishSchemeBtn: 'নতুন স্কিম প্রকাশ করুন',
     
     publicSchemesTitle: 'সরকারি স্কিম এবং ক্যাপিটাল সাবসিডি ডিরেক্টরি',
-    publicSchemesSub: 'সকল ব্যবহারকারী এবং নাগরিকদের জন্য সরকারি আর্থিক সহায়তার স্বচ্ছ ২৪/৭ সুযোগ।'
+    publicSchemesSub: 'সকল ব্যবহারকারী এবং নাগরিকদের জন্য সরকারি আর্থিক সহায়তার স্বচ্ছ ২৪/৭ সুযোগ।',
+
+    // ChatGPT Sidebar & Rural Chat Assistant
+    chatgptNewChat: 'নতুন AI গ্রামীণ চ্যাট',
+    chatgptSidebarReports: 'আমার তৈরি রিপোর্ট',
+    chatgptSidebarPeerPool: 'পিয়ার বিনিয়োগ পুল',
+    chatgptSidebarSchemes: 'সরকারি স্কিম ডিরেক্টরি',
+    chatgptSidebarBankPortal: 'ব্যাঙ্ক কর্মকর্তা পোর্টাল',
+    chatgptSidebarAdminPortal: 'সিস্টেম অ্যাডমিন ড্যাশবোর্ড',
+    chatgptSidebarSettings: 'সেটিংস এবং ভাষা',
+    chatgptRuralAssistantTitle: 'গ্রামউদয় AI কথোপকথন সহকারী',
+    chatgptRuralAssistantSub: 'গ্রামীণ উদ্যোক্তাদের জন্য ভয়েস ও চ্যাট সহকারী।',
+    chatgptGreetingMsg: 'নমস্কার! আমি আপনার গ্রামউদয় AI সহকারী। আপনাকে জটিল ফর্ম পূরণ করতে হবে না। আপনার মার্জিন মূলধন এবং গ্রামের নাম বলুন বা লিখুন।',
+    chatgptPromptChip1: 'সুয়ালকুচিতে তাঁত শিল্পের জন্য ১৫,০০০ টাকা',
+    chatgptPromptChip2: 'মাজুলিতে মৃৎশিল্পের জন্য ৫০,০০০ টাকা',
+    chatgptPromptChip3: 'তেজপুরে ডেইরির জন্য ১,০০,০০০ টাকা',
+    chatgptReportHintTitle: 'রিপোর্ট এবং ১০% মার্জিন হিসাব সংরক্ষিত!',
+    chatgptReportHintDesc: 'আপনার ৯০% ব্যাঙ্ক ঋণ যোগ্যতা এবং সরকারি স্কিম রিপোর্ট স্বয়ংক্রিয়ভাবে তৈরি করা হয়েছে।',
+    chatgptViewFullReportBtn: 'সম্পূর্ণ রিপোর্ট দেখুন',
+    chatgptAskPlaceholder: 'লিখুন বা বলুন: যেমন ডেইরির জন্য আমার ১৫,০০০ টাকা আছে...',
+    chatgptSendBtn: 'পাঠান'
   }
 };

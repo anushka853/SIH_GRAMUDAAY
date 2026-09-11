@@ -3,12 +3,14 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import VoiceButton from '../components/VoiceButton';
 import SchemeBadge from '../components/SchemeBadge';
+import RuralAIChatAssistant from '../components/RuralAIChatAssistant';
 import { generateFeasibilityReport, getAIRecommendationForLocation } from '../utils/aiFeasibilityEngine';
 import { formatINR, PREDEFINED_GOVT_SCHEMES } from '../utils/financialEngine';
 import { SECTIONS_PRESETS, REGIONS_PRESETS } from '../utils/mockData';
 import {
   Sparkles,
   Calculator,
+  MessageCircle,
   TrendingUp,
   MapPin,
   Users,
@@ -28,7 +30,7 @@ import {
 } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
 
-export default function EntrepreneurPortal() {
+export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
   const { currentUser, submitApplication, applications } = useAuth();
   const { t, speak } = useLanguage();
 
@@ -39,8 +41,8 @@ export default function EntrepreneurPortal() {
   const [selectedRegionIndex, setSelectedRegionIndex] = useState(0);
   const [chosenSchemeKey, setChosenSchemeKey] = useState('SCA_MICRO');
 
-  // Active view tab: 'feasibility' | 'repayment'
-  const [activeTab, setActiveTab] = useState('feasibility');
+  // Active view tab: 'chat' | 'feasibility' | 'repayment'
+  const [activeTab, setActiveTab] = useState(initialSubTab);
 
   // Generated report state
   const [report, setReport] = useState(() =>
@@ -155,6 +157,18 @@ export default function EntrepreneurPortal() {
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <button
+              onClick={() => setActiveTab('chat')}
+              className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === 'chat'
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <MessageCircle className="w-4 h-4 text-amber-300" />
+              <span>AI Chat Assistant</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('feasibility')}
               className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer ${
                 activeTab === 'feasibility'
@@ -180,6 +194,14 @@ export default function EntrepreneurPortal() {
           </div>
         </div>
       </div>
+
+      {/* Render AI Conversational Chat Assistant */}
+      {activeTab === 'chat' && (
+        <RuralAIChatAssistant
+          onViewFullReport={() => setActiveTab('feasibility')}
+          onReportGenerated={(genReport) => setReport(genReport)}
+        />
+      )}
 
       {/* Main Form & Interactive Calculation Hub */}
       {activeTab === 'feasibility' && (
