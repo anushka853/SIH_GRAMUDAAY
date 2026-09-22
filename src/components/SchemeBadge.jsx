@@ -1,88 +1,121 @@
 import React from 'react';
-import { ShieldCheck, Percent, Clock, Calendar, Gift, Award, DollarSign } from 'lucide-react';
+import { ShieldCheck, Percent, Clock, Calendar, DollarSign, Gift } from 'lucide-react';
 import { formatINR } from '../utils/financialEngine';
 
 export default function SchemeBadge({ financial }) {
   if (!financial) return null;
 
-  const isMicro = financial.schemeType === 'SCA_MICRO';
   const hasSubsidy = financial.govtSubsidyAmount > 0;
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm relative overflow-hidden transition-all">
-      {/* Top Banner & Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5 border-b border-slate-100 dark:border-slate-800 pb-4">
+    <div
+      className="rounded-xl p-5"
+      style={{
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
+      }}
+    >
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold">
-            <ShieldCheck className="w-6 h-6" />
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: 'var(--emerald-light)', color: 'var(--emerald)' }}
+          >
+            <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] uppercase tracking-wider font-extrabold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span
+                className="text-xs font-600 px-2 py-0.5 rounded-full"
+                style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)', fontWeight: 600 }}
+              >
                 {financial.schemeDetails?.category || 'Government Scheme'}
               </span>
               {hasSubsidy && (
-                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1">
-                  <Gift className="w-3 h-3" /> {financial.subsidyPercent}% Govt Subsidy
+                <span
+                  className="text-xs font-600 px-2 py-0.5 rounded-full flex items-center gap-1"
+                  style={{ background: 'var(--warning-light)', color: 'var(--warning)', fontWeight: 600 }}
+                >
+                  <Gift className="w-3 h-3" />
+                  {financial.subsidyPercent}% Govt Subsidy
                 </span>
               )}
             </div>
-            <h3 className="text-xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">
+            <h3
+              className="text-base font-700 mt-1"
+              style={{ color: 'var(--text-primary)', fontWeight: 700 }}
+            >
               {financial.schemeName}
             </h3>
           </div>
         </div>
-
-        <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm">
-          Project Cost: {formatINR(financial.totalProjectCost)}
+        <span
+          className="text-sm font-600 px-3 py-1.5 rounded-lg"
+          style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)', fontWeight: 600 }}
+        >
+          Project: {formatINR(financial.totalProjectCost)}
         </span>
       </div>
 
-      {/* Grid Specs Parameters */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-        <div className="bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80">
-          <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 mb-1 font-semibold">
-            <Percent className="w-3.5 h-3.5 text-amber-500" />
-            <span>Concessional Rate</span>
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          {
+            icon: Percent,
+            label: 'Interest Rate',
+            value: `${financial.interestRate}% p.a.`,
+            sub: 'Concessional',
+            color: 'var(--warning)',
+          },
+          {
+            icon: Clock,
+            label: 'Tenure',
+            value: `${financial.totalTenureYears} Years`,
+            sub: `${financial.totalQuarters} Quarters`,
+            color: 'var(--emerald)',
+          },
+          {
+            icon: Calendar,
+            label: 'Moratorium',
+            value: `${financial.moratoriumMonths} Months`,
+            sub: 'Grace Period',
+            color: 'var(--info)',
+          },
+          {
+            icon: DollarSign,
+            label: 'Quarterly EMI',
+            value: formatINR(financial.quarterlyEMI),
+            sub: 'Post moratorium',
+            color: 'var(--accent)',
+          },
+        ].map(({ icon: Icon, label, value, sub, color }) => (
+          <div
+            key={label}
+            className="p-3.5 rounded-xl"
+            style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
+          >
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Icon className="w-3.5 h-3.5" style={{ color }} />
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</span>
+            </div>
+            <div className="text-base font-700" style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{value}</div>
+            <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{sub}</div>
           </div>
-          <div className="text-lg font-black text-slate-900 dark:text-amber-400">{financial.interestRate}% p.a.</div>
-          <div className="text-[10px] text-slate-500">Government Subsidized</div>
-        </div>
-
-        <div className="bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80">
-          <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 mb-1 font-semibold">
-            <Clock className="w-3.5 h-3.5 text-emerald-500" />
-            <span>Repayment Tenure</span>
-          </div>
-          <div className="text-lg font-black text-slate-900 dark:text-emerald-400">{financial.totalTenureYears} Years</div>
-          <div className="text-[10px] text-slate-500">{financial.totalQuarters} Quarters</div>
-        </div>
-
-        <div className="bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80">
-          <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 mb-1 font-semibold">
-            <Calendar className="w-3.5 h-3.5 text-cyan-500" />
-            <span>Moratorium Period</span>
-          </div>
-          <div className="text-lg font-black text-slate-900 dark:text-cyan-400">{financial.moratoriumMonths} Months</div>
-          <div className="text-[10px] text-slate-500">Principal Grace Period</div>
-        </div>
-
-        <div className="bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80">
-          <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 mb-1 font-semibold">
-            <DollarSign className="w-3.5 h-3.5 text-purple-500" />
-            <span>Quarterly EMI</span>
-          </div>
-          <div className="text-lg font-black text-slate-900 dark:text-purple-300">{formatINR(financial.quarterlyEMI)}</div>
-          <div className="text-[10px] text-slate-500">Post Moratorium</div>
-        </div>
+        ))}
       </div>
 
+      {/* Subsidy banner */}
       {hasSubsidy && (
-        <div className="mt-4 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between text-xs">
-          <span className="font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
-            <Gift className="w-4 h-4 text-amber-500" /> Total Direct Government Capital Subsidy Saved:
+        <div
+          className="mt-3 p-3 rounded-xl flex items-center justify-between text-sm"
+          style={{ background: 'var(--warning-light)', border: '1px solid #FDE68A' }}
+        >
+          <span className="flex items-center gap-2 font-500" style={{ color: 'var(--warning)' }}>
+            <Gift className="w-4 h-4" />
+            Total Government Capital Subsidy Saved
           </span>
-          <span className="font-black text-amber-600 dark:text-amber-400 text-sm">
+          <span className="font-700" style={{ color: 'var(--warning)', fontWeight: 700 }}>
             {formatINR(financial.govtSubsidyAmount)}
           </span>
         </div>
@@ -90,4 +123,3 @@ export default function SchemeBadge({ financial }) {
     </div>
   );
 }
-

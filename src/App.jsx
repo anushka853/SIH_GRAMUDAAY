@@ -1,78 +1,200 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import './App.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { LanguageProvider, useLanguage } from './context/LanguageContext';
-import Navbar from './components/Navbar';
+import { LanguageProvider } from './context/LanguageContext';
+import LandingPage from './components/LandingPage';
+import Sidebar from './components/Sidebar';
+import Topbar from './components/Topbar';
+import ChatWorkspace from './components/ChatWorkspace';
 import LoginModal from './components/LoginModal';
 import EntrepreneurPortal from './pages/EntrepreneurPortal';
 import BankPortal from './pages/BankPortal';
 import AdminPortal from './pages/AdminPortal';
 import PeerPooling from './pages/PeerPooling';
-import { Users, HeartHandshake, Calculator, ShieldCheck, Landmark } from 'lucide-react';
+import { resolvePageFromNavId, getNavForRole, getActiveNavId, getDefaultNavId } from './config/navConfig';
+
+const LS_COLLAPSED = 'gramudaay_sidebar_collapsed';
 
 function MainApp() {
   const { currentRole } = useAuth();
-  const { t } = useLanguage();
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [entrepreneurSubTab, setEntrepreneurSubTab] = useState('feasibility'); // 'feasibility' | 'peerPool'
+
+  // ── UI state ──────────────────────────────────────────────
+  const [hasStarted, setHasStarted]           = useState(false);
+  const [isLoginOpen, setIsLoginOpen]         = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Sidebar collapse — persisted in localStorage
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    try { return localStorage.getItem(LS_COLLAPSED) === 'true'; }
+    catch { return false; }
+  });
+
+  // Routing — activePage drives which component renders
+  // activeNavId tracks what's highlighted in the sidebar
+  const [activePage, setActivePage]   = useState(() => getDefaultNavId(currentRole));
+  const [activeNavId, setActiveNavId] = useState(() => getDefaultNavId(currentRole));
+
+  // Sync collapse preference to localStorage
+  useEffect(() => {
+    try { localStorage.setItem(LS_COLLAPSED, String(isSidebarCollapsed)); }
+    catch { /* ignore */ }
+  }, [isSidebarCollapsed]);
+
+  // Reset active nav when role changes (synchronous render-time update)
+  const [prevRole, setPrevRole] = useState(currentRole);
+  if (currentRole !== prevRole) {
+    setPrevRole(currentRole);
+    const defaultId = getDefaultNavId(currentRole);
+    setActiveNavId(defaultId);
+    setActivePage(resolvePageFromNavId(defaultId, currentRole).page);
+  }
+
+  // ── Handlers ──────────────────────────────────────────────
+  const handleNavItemClick = (navId) => {
+    setActiveNavId(navId);
+
+    // Special actions that don't navigate
+    if (navId === 'language') {
+      alert('Language Settings (Placeholder)');
+      return;
+    }
+    if (navId === 'profile') {
+      setIsLoginOpen(true);
+      return;
+    }
+    if (navId === 'help') {
+      alert('Help & Support (Placeholder)');
+      return;
+    }
+
+    const { page } = resolvePageFromNavId(navId, currentRole);
+    setActivePage(page);
+  };
+
+  // Legacy compatibility — some sub-components may call onNavigate(pageId) directly
+  const handleNavigate = (page) => {
+    setActivePage(page);
+    const newNavId = getActiveNavId(page, currentRole);
+    setActiveNavId(newNavId);
+  };
+
+  // ── Render the correct page ───────────────────────────────
+  const renderPage = () => {
+    switch (activePage) {
+      // ChatWorkspace handles Dashboards & Insights
+      case 'dashboard':
+      case 'credit-dashboard':
+      case 'national-dashboard':
+      case 'market-intel':
+      case 'market-intelligence':
+      case 'market-activity':
+      case 'regional-metrics':
+      case 'voice-advisor':
+      case 'ai-counter':
+      case 'risk-signals':
+      case 'feasibility-reports':
+      case 'enterprise-categories':
+        return <ChatWorkspace />;
+        
+      // Entrepreneur Portal 
+      case 'feasibility':
+      case 'assessment':
+      case 'financial-structuring':
+      case 'loan-recommendation':
+      case 'repayment-plan':
+      case 'my-applications':
+      case 'funding-status':
+      case 'enterprise':
+      case 'schemes':
+        return <EntrepreneurPortal activePage={activePage} />;
+        
+      // Bank Portal
+      case 'bank-portal':
+      case 'bank-scheme':
+      case 'pending-apps':
+      case 'under-review':
+      case 'approved':
+      case 'rejected':
+      case 'loan-portfolio':
+      case 'regional-activity':
+      case 'documents':
+        return <BankPortal activePage={activePage} />;
+        
+      // Admin Portal
+      case 'admin-portal':
+      case 'funding-dist':
+      case 'scheme-utilization':
+      case 'active-users':
+      case 'system-alerts':
+      case 'exports':
+      case 'analytics':
+        return <AdminPortal activePage={activePage} />;
+        
+      // Peer Pooling
+      case 'peer-pooling':
+      case 'peer-investment':
+      case 'funding-opps':
+      case 'alerts':
+        return <PeerPooling activePage={activePage} />;
+        
+      default:
+        // fallback based on role
+        if (currentRole === 'bank') return <BankPortal activePage={activePage} />;
+        if (currentRole === 'admin') return <AdminPortal activePage={activePage} />;
+        return <ChatWorkspace />;
+    }
+  };
+
+  // ── Landing page ──────────────────────────────────────────
+  if (!hasStarted) {
+    return <LandingPage onStart={() => setHasStarted(true)} />;
+  }
+
+  const navConfig = getNavForRole(currentRole);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white">
-      <div>
-        <Navbar onOpenLogin={() => setIsLoginOpen(true)} />
+    <div
+      className="flex h-screen overflow-hidden"
+      style={{ background: 'var(--bg-page)' }}
+    >
+      {/* ── Sidebar ── */}
+      <Sidebar
+        activePage={activePage}
+        onNavigate={handleNavigate}
+        activeNavId={activeNavId}
+        onNavItemClick={handleNavItemClick}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed((v) => !v)}
+        isMobileOpen={isMobileMenuOpen}
+        onMobileClose={() => setIsMobileMenuOpen(false)}
+        onOpenLogin={() => setIsLoginOpen(true)}
+      />
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-          
-          {/* Sub-navigation for Entrepreneur Role: Feasibility vs Peer Pool */}
-          {currentRole === 'entrepreneur' && (
-            <div className="flex items-center gap-2 mb-6 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800 w-fit">
-              <button
-                onClick={() => setEntrepreneurSubTab('feasibility')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                  entrepreneurSubTab === 'feasibility'
-                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <Calculator className="w-4 h-4" />
-                <span>Module 1 & 2: Feasibility & Loan Calculator</span>
-              </button>
+      {/* ── Main content ── */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Topbar — mobile + desktop */}
+        <Topbar
+          onMenuClick={() => setIsMobileMenuOpen(true)}
+          onOpenLogin={() => setIsLoginOpen(true)}
+          activeNavId={activeNavId}
+          navConfig={navConfig}
+        />
 
-              <button
-                onClick={() => setEntrepreneurSubTab('peerPool')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                  entrepreneurSubTab === 'peerPool'
-                    ? 'bg-teal-600 text-white shadow-md shadow-teal-950'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <HeartHandshake className="w-4 h-4" />
-                <span>Peer Micro-Investment Pool (Bypass Brokers)</span>
-              </button>
-            </div>
-          )}
-
-          {/* Render Active View based on Selected Role */}
-          {currentRole === 'entrepreneur' && (entrepreneurSubTab === 'feasibility' ? <EntrepreneurPortal /> : <PeerPooling />)}
-          {currentRole === 'bank' && <BankPortal />}
-          {currentRole === 'admin' && <AdminPortal />}
-
+        {/* Page content */}
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 overflow-y-auto scrollbar-thin"
+          aria-label="Main content"
+        >
+          <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-6xl mx-auto w-full">
+            {renderPage()}
+          </div>
         </main>
       </div>
 
+      {/* ── Login / Profile Modal ── */}
       <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
-
-      {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950/90 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div className="flex items-center gap-2">
-            <Landmark className="w-4 h-4 text-emerald-400" />
-            <span className="font-bold text-slate-400">GramUday AI</span> — National Rural Enterprise & Concessional Credit Advisory System
-          </div>
-          <div>
-            State Channelizing Agencies (SCAs) & Channelizing Agencies (CAs) Guidelines | Micro Finance & Term Loan Routing
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

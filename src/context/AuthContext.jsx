@@ -7,11 +7,12 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [currentRole, setCurrentRole] = useState('entrepreneur'); // 'entrepreneur' | 'bank' | 'admin'
   const [currentUser, setCurrentUser] = useState({
-    name: 'Ramesh Patel',
+    name: 'Arjun Das',
+    businessIdea: 'Green Valley Foods',
     age: 34,
     contact: '+91 98765 43210',
-    address: 'At Post Rampur, Anand Rural',
-    location: { villageName: 'Rampur', blockName: 'Anand Rural', districtName: 'Anand', stateName: 'Gujarat' }
+    address: 'Demo Village, Silchar Block',
+    location: { villageName: 'Demo Village', blockName: 'Silchar Block', districtName: 'Cachar', stateName: 'Assam' }
   });
 
   const [applications, setApplications] = useState(INITIAL_BANK_APPLICATIONS);
@@ -86,20 +87,30 @@ export const AuthProvider = ({ children }) => {
     );
   };
 
+  const submitPeerFunding = contributeToPool;
+
+  // Reset Demo Data
+  const resetDemoData = () => {
+    setApplications(INITIAL_BANK_APPLICATIONS);
+    setPeerPools(INITIAL_PEER_POOLS);
+  };
+
   return (
     <AuthContext.Provider
       value={{
         currentRole,
         currentUser,
-        switchRole,
         applications,
         peerPools,
         counterProposals,
+        switchRole,
         submitApplication,
         approveApplication,
         triggerCounterProposal,
         acceptCounterProposal,
-        contributeToPool
+        contributeToPool,
+        submitPeerFunding,
+        resetDemoData
       }}
     >
       {children}

@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import VoiceButton from './VoiceButton';
-import { X, User, Building2, ShieldCheck, ArrowRight, UserPlus, LogIn, Mic } from 'lucide-react';
+import { X, User, Building2, ShieldCheck, ArrowRight, UserPlus, LogIn } from 'lucide-react';
 
 export default function LoginModal({ isOpen, onClose }) {
   const { switchRole, currentUser } = useAuth();
   const { t } = useLanguage();
 
-  const [authMode, setAuthMode] = useState('signup'); // 'signup' | 'login'
+  const [authMode, setAuthMode] = useState('signup');
   const [selectedRole, setSelectedRole] = useState('entrepreneur');
-  
-  // User Form fields
+
+  // User form fields
   const [name, setName] = useState(currentUser?.name || 'Ramesh Patel');
   const [age, setAge] = useState(currentUser?.age || 34);
   const [contact, setContact] = useState(currentUser?.contact || '+91 98765 43210');
@@ -30,256 +30,291 @@ export default function LoginModal({ isOpen, onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const userDetails = {
-      name: selectedRole === 'entrepreneur' ? name : selectedRole === 'bank' ? `Officer (${staffId})` : 'System Administrator',
+      name:
+        selectedRole === 'entrepreneur'
+          ? name
+          : selectedRole === 'bank'
+          ? `Officer (${staffId})`
+          : 'System Administrator',
       age: Number(age),
       contact,
       address,
       staffId,
       adminKey,
-      location: { villageName: village, blockName: block, districtName: district, stateName: state }
+      location: { villageName: village, blockName: block, districtName: district, stateName: state },
     };
     switchRole(selectedRole, userDetails);
     onClose();
   };
 
+  const roleOptions = [
+    { id: 'entrepreneur', label: t('roles.entrepreneur') || 'Entrepreneur', icon: User, color: '#059669', bg: '#DCFCE7' },
+    { id: 'bank', label: t('roles.bank') || 'Bank Officer', icon: Building2, color: '#2563EB', bg: '#DBEAFE' },
+    { id: 'admin', label: t('roles.admin') || 'System Admin', icon: ShieldCheck, color: '#D97706', bg: '#FEF3C7' },
+  ];
+
+  const inputStyle = {
+    width: '100%',
+    background: 'var(--bg-input)',
+    border: '1px solid var(--border-default)',
+    borderRadius: 'var(--radius-lg)',
+    padding: '0.625rem 0.875rem',
+    fontSize: '0.9375rem',
+    color: 'var(--text-primary)',
+    outline: 'none',
+    transition: 'border-color 150ms ease',
+  };
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: '0.8125rem',
+    fontWeight: 500,
+    color: 'var(--text-secondary)',
+    marginBottom: '0.375rem',
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative overflow-hidden text-slate-900 dark:text-slate-100">
-        
-        {/* Close Button */}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)' }}
+    >
+      <div
+        className="relative w-full max-w-md rounded-2xl overflow-hidden"
+        style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-default)',
+          boxShadow: 'var(--shadow-lg)',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+        }}
+      >
+        {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 transition-colors"
+          className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors z-10"
+          style={{ color: 'var(--text-muted)' }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-hover)')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Modal Header */}
-        <div className="text-center mb-6">
-          <span className="text-[10px] uppercase font-extrabold tracking-wider px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-            Multi-Role Authentication & Access Control
-          </span>
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 mt-2">
-            GramUday AI Access Portal
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Multilingual Voice & Text Input for Entrepreneurs, Bank Staff & Admins
-          </p>
-        </div>
+        <div className="p-6 sm:p-8">
+          {/* Header */}
+          <div className="mb-6">
+            <p className="page-eyebrow mb-2">{t('login.accessPortal') || 'Access Portal'}</p>
+            <h2 className="text-xl font-700" style={{ color: 'var(--text-primary)', fontWeight: 700, letterSpacing: '-0.02em' }}>
+              {t('login.signInTitle') || 'Sign in to GramUday AI'}
+            </h2>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+              {t('login.signInDesc') || 'Multi-role authentication for entrepreneurs, bank staff & admins.'}
+            </p>
+          </div>
 
-        {/* Sign Up vs Log In Mode Switcher */}
-        <div className="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-2xl mb-5">
-          <button
-            type="button"
-            onClick={() => setAuthMode('signup')}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 ${
-              authMode === 'signup'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
-            }`}
+          {/* Mode Toggle */}
+          <div
+            className="flex p-1 rounded-xl mb-5"
+            style={{ background: 'var(--bg-elevated)', gap: '0.25rem' }}
           >
-            <UserPlus className="w-4 h-4 text-emerald-500" />
-            <span>Multilingual Sign-Up</span>
-          </button>
+            {[
+              { id: 'signup', label: t('login.signUp') || 'Sign Up', icon: UserPlus },
+              { id: 'login', label: t('login.logIn') || 'Log In', icon: LogIn },
+            ].map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setAuthMode(id)}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-500 transition-all"
+                style={{
+                  fontWeight: authMode === id ? 600 : 400,
+                  background: authMode === id ? 'var(--bg-surface)' : 'transparent',
+                  color: authMode === id ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  boxShadow: authMode === id ? 'var(--shadow-sm)' : 'none',
+                }}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {label}
+              </button>
+            ))}
+          </div>
 
-          <button
-            type="button"
-            onClick={() => setAuthMode('login')}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 ${
-              authMode === 'login'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
-            }`}
-          >
-            <LogIn className="w-4 h-4 text-blue-500" />
-            <span>Secure Log In</span>
-          </button>
-        </div>
+          {/* Role Selector */}
+          <div className="grid grid-cols-3 gap-2 mb-6">
+            {roleOptions.map(({ id, label, icon: Icon, color, bg }) => {
+              const isSelected = selectedRole === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setSelectedRole(id)}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl border text-xs font-500 transition-all"
+                  style={{
+                    fontWeight: isSelected ? 600 : 500,
+                    background: isSelected ? bg : 'transparent',
+                    borderColor: isSelected ? color : 'var(--border-default)',
+                    color: isSelected ? color : 'var(--text-secondary)',
+                  }}
+                >
+                  <div
+                    className="w-7 h-7 rounded-lg flex items-center justify-center"
+                    style={{ background: isSelected ? color : 'var(--bg-elevated)', color: isSelected ? 'white' : 'var(--text-secondary)' }}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                  </div>
+                  {label}
+                </button>
+              );
+            })}
+          </div>
 
-        {/* Role Selector Tabs */}
-        <div className="grid grid-cols-3 gap-2 bg-slate-100 dark:bg-slate-950 p-1.5 rounded-2xl mb-6">
-          <button
-            type="button"
-            onClick={() => setSelectedRole('entrepreneur')}
-            className={`py-2.5 px-2 rounded-xl text-xs font-extrabold transition-all flex flex-col items-center gap-1 ${
-              selectedRole === 'entrepreneur'
-                ? 'bg-emerald-600 text-white shadow-md'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
-            }`}
-          >
-            <User className="w-4 h-4" />
-            <span>Entrepreneur</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setSelectedRole('bank')}
-            className={`py-2.5 px-2 rounded-xl text-xs font-extrabold transition-all flex flex-col items-center gap-1 ${
-              selectedRole === 'bank'
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
-            }`}
-          >
-            <Building2 className="w-4 h-4" />
-            <span>Bank Employee</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setSelectedRole('admin')}
-            className={`py-2.5 px-2 rounded-xl text-xs font-extrabold transition-all flex flex-col items-center gap-1 ${
-              selectedRole === 'admin'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
-            }`}
-          >
-            <ShieldCheck className="w-4 h-4" />
-            <span>System Admin</span>
-          </button>
-        </div>
-
-        {/* Dynamic Form Content */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          
-          {/* Entrepreneur Fields */}
-          {selectedRole === 'entrepreneur' && (
-            <>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Full Name (Voice or Text Input)
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    placeholder="Enter your name"
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-emerald-500"
-                  />
-                  <VoiceButton onTranscript={(txt) => setName(txt)} />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Entrepreneur Fields */}
+            {selectedRole === 'entrepreneur' && (
+              <>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Age</label>
+                  <label style={labelStyle}>{t('login.fullName') || 'Full Name'}</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                      placeholder="Enter your name"
+                      style={inputStyle}
+                      onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                      onBlur={(e) => (e.target.style.borderColor = 'var(--border-default)')}
+                    />
+                    <VoiceButton onTranscript={(txt) => setName(txt)} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label style={labelStyle}>{t('login.age') || 'Age'}</label>
+                    <input
+                      type="number"
+                      value={age}
+                      onChange={(e) => setAge(e.target.value)}
+                      required
+                      style={inputStyle}
+                      onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                      onBlur={(e) => (e.target.style.borderColor = 'var(--border-default)')}
+                    />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>{t('login.contact') || 'Contact'}</label>
+                    <input
+                      type="text"
+                      value={contact}
+                      onChange={(e) => setContact(e.target.value)}
+                      required
+                      style={inputStyle}
+                      onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                      onBlur={(e) => (e.target.style.borderColor = 'var(--border-default)')}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={labelStyle}>{t('login.address') || 'Address / Gram Panchayat'}</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      required
+                      style={inputStyle}
+                      onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                      onBlur={(e) => (e.target.style.borderColor = 'var(--border-default)')}
+                    />
+                    <VoiceButton onTranscript={(txt) => setAddress(txt)} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label style={labelStyle}>{t('login.village') || 'Village / Gram'}</label>
+                    <input
+                      type="text"
+                      value={village}
+                      onChange={(e) => setVillage(e.target.value)}
+                      required
+                      style={{ ...inputStyle, fontSize: '0.875rem' }}
+                      onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                      onBlur={(e) => (e.target.style.borderColor = 'var(--border-default)')}
+                    />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>{t('login.blockDistrict') || 'Block & District'}</label>
+                    <input
+                      type="text"
+                      value={`${block}, ${district}`}
+                      onChange={(e) => {
+                        const parts = e.target.value.split(',');
+                        setBlock(parts[0] || block);
+                        setDistrict(parts[1]?.trim() || district);
+                      }}
+                      required
+                      style={{ ...inputStyle, fontSize: '0.875rem' }}
+                      onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                      onBlur={(e) => (e.target.style.borderColor = 'var(--border-default)')}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Bank Employee Fields */}
+            {selectedRole === 'bank' && (
+              <div className="space-y-3">
+                <div>
+                  <label style={labelStyle}>{t('login.staffId') || 'Bank Staff Employee ID'}</label>
                   <input
-                    type="number"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
+                    type="text"
+                    value={staffId}
+                    onChange={(e) => setStaffId(e.target.value)}
                     required
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-emerald-500"
+                    style={{ ...inputStyle, fontFamily: 'monospace' }}
+                    onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                    onBlur={(e) => (e.target.style.borderColor = 'var(--border-default)')}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Contact Number</label>
+                  <label style={labelStyle}>{t('login.branch') || 'Branch / District Jurisdiction'}</label>
                   <input
                     type="text"
-                    value={contact}
-                    onChange={(e) => setContact(e.target.value)}
-                    required
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-emerald-500"
+                    value="Anand District Lead Bank Branch"
+                    disabled
+                    style={{ ...inputStyle, background: 'var(--bg-elevated)', color: 'var(--text-muted)' }}
                   />
                 </div>
               </div>
+            )}
 
+            {/* System Admin Fields */}
+            {selectedRole === 'admin' && (
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Address / Gram Panchayat (Voice or Text)
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    required
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-emerald-500"
-                  />
-                  <VoiceButton onTranscript={(txt) => setAddress(txt)} />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Village / Gram</label>
-                  <input
-                    type="text"
-                    value={village}
-                    onChange={(e) => setVillage(e.target.value)}
-                    required
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Block & District</label>
-                  <input
-                    type="text"
-                    value={`${block}, ${district}`}
-                    onChange={(e) => {
-                      const parts = e.target.value.split(',');
-                      setBlock(parts[0] || block);
-                      setDistrict(parts[1]?.trim() || district);
-                    }}
-                    required
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Bank Employee Fields */}
-          {selectedRole === 'bank' && (
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Bank Staff Employee ID</label>
-                <input
-                  type="text"
-                  value={staffId}
-                  onChange={(e) => setStaffId(e.target.value)}
-                  required
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 font-mono"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Branch / District Jurisdiction</label>
-                <input
-                  type="text"
-                  value="Anand District Lead Bank Branch"
-                  disabled
-                  className="w-full bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-500 font-bold"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* System Admin Fields */}
-          {selectedRole === 'admin' && (
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Master Government Admin Security Key</label>
+                <label style={labelStyle}>{t('login.adminKey') || 'Government Admin Security Key'}</label>
                 <input
                   type="password"
                   value={adminKey}
                   onChange={(e) => setAdminKey(e.target.value)}
                   required
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 font-mono"
+                  style={{ ...inputStyle, fontFamily: 'monospace' }}
+                  onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                  onBlur={(e) => (e.target.style.borderColor = 'var(--border-default)')}
                 />
               </div>
-            </div>
-          )}
+            )}
 
-          <button
-            type="submit"
-            className="w-full py-3.5 px-4 rounded-xl font-extrabold text-sm bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white shadow-lg transition-all flex items-center justify-center gap-2 mt-4"
-          >
-            <span>{authMode === 'signup' ? 'Complete Multilingual Sign-Up' : 'Log In to System Portal'}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </form>
+            <button type="submit" className="btn-primary w-full mt-2" style={{ borderRadius: 'var(--radius-lg)' }}>
+              {authMode === 'signup' ? (t('login.createAccount') || 'Create Account') : (t('login.signIn') || 'Sign In')}
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
 }
-

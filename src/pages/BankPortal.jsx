@@ -2,46 +2,39 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import SchemeBadge from '../components/SchemeBadge';
-import { formatINR, compareGovernmentSchemes, calculateFinancialScheme, PREDEFINED_GOVT_SCHEMES } from '../utils/financialEngine';
+import { formatINR, compareGovernmentSchemes, calculateFinancialScheme } from '../utils/financialEngine';
 import {
   Building2,
-  ShieldCheck,
   AlertTriangle,
   CheckCircle2,
   Sparkles,
-  ArrowRight,
   Send,
-  Search,
   FileText,
-  Users,
-  Briefcase,
-  Award,
-  Gift,
-  Calculator,
-  Percent,
-  Check,
-  ChevronDown
 } from 'lucide-react';
+
+function StatusBadge({ status, isOversaturated, t }) {
+  if (status === 'APPROVED') {
+    return <span className="badge badge-success">{t('status.APPROVED') || 'Approved'}</span>;
+  }
+  if (status === 'COUNTER_PROPOSED' || isOversaturated) {
+    return <span className="badge badge-warning">{t('status.saturationFlag') || 'Saturation Flag'}</span>;
+  }
+  return <span className="badge badge-info">{t('status.under_review') || 'Under Review'}</span>;
+}
 
 export default function BankPortal() {
   const { applications, approveApplication, triggerCounterProposal } = useAuth();
   const { t, speak } = useLanguage();
 
-  const [selectedAppId, setSelectedAppId] = useState(applications[0]?.id || 'APP-98421');
+  const [selectedAppId, setSelectedAppId] = useState(applications[0]?.id || '');
   const [activeCounterProposal, setActiveCounterProposal] = useState(null);
   const [proposalSentAppIds, setProposalSentAppIds] = useState([]);
-  
-  // Custom Scheme Selection by Bank Officer
   const [selectedSchemeKey, setSelectedSchemeKey] = useState(null);
 
   const selectedApp = applications.find((a) => a.id === selectedAppId) || applications[0];
-
-  // Calculate scheme comparisons for the selected application
   const marginCap = selectedApp?.availableMarginCapital || 100000;
   const sectorKey = selectedApp?.sectorKey || 'Dairy';
   const schemeOptions = compareGovernmentSchemes(marginCap, sectorKey);
-
-  // Active calculated financial metrics based on officer scheme selection
   const activeFinancial = calculateFinancialScheme(marginCap, selectedSchemeKey || selectedApp?.feasibilityReport?.financial?.schemeType);
 
   const handleTriggerAI = () => {
@@ -49,7 +42,9 @@ export default function BankPortal() {
     const proposal = triggerCounterProposal(selectedApp.id);
     setActiveCounterProposal(proposal);
     speak(
-      `AI Counter-Proposal generated for ${selectedApp.applicantName}. The original idea ${selectedApp.originalBusinessIdea} is oversaturated in ${selectedApp.location?.blockName || 'this block'}. AI recommends 3 alternative models with up to 55 percent profit margins and government subsidies.`
+      `AI Counter-Proposal generated for ${selectedApp.applicantName}. The original idea ${selectedApp.originalBusinessIdea} is oversaturated in ${
+        selectedApp.location?.blockName || 'this block'
+      }. AI recommends 3 alternative models with up to 55 percent profit margins.`
     );
   };
 
@@ -57,339 +52,347 @@ export default function BankPortal() {
     setProposalSentAppIds((prev) => [...prev, appId]);
   };
 
+  const pendingCount = applications.filter((a) => a.status === 'PENDING_REVIEW' || a.status === 'COUNTER_PROPOSED').length;
+  const approvedCount = applications.filter((a) => a.status === 'APPROVED').length;
+
   return (
-    <div className="space-y-8 pb-16">
-      
-      {/* Top Banner Header - Airtable Style */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+    <div className="space-y-6 pb-12">
+      {/* ─── Page Header ─── */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-xs font-extrabold px-3 py-1 rounded-full flex items-center gap-1.5">
-              <Building2 className="w-3.5 h-3.5" /> Channelizing Agency (SCA / CA) Staff Desk
-            </span>
-            <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-extrabold px-3 py-1 rounded-full">
-              Phase 2 & Phase 3 Bank Evaluation
-            </span>
-          </div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-            Bank Employee Portal & Predefined Govt Scheme Router
-          </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-2xl mt-1 leading-relaxed">
-            Assess rural entrepreneur applications, run AI competitor saturation density checks, select optimal predefined government schemes (PMEGP, MUDRA, SCA), and trigger low-competition counter-proposals.
+          <p className="page-eyebrow mb-2">{t('bank.pageEyebrow') || 'Bank Officer Portal — SCA/CA Staff Desk'}</p>
+          <h1 className="page-title">{t('bank.creditAdvisory')}</h1>
+          <p className="page-subtitle mt-2 max-w-2xl">
+            {t('bank.pageSubtitle') || 'Review applications, feasibility reports, risk indicators, and AI-assisted scheme recommendations.'}
           </p>
         </div>
-
-        <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 text-right">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Active Bank Queue</span>
-          <div className="text-2xl font-black text-blue-600 dark:text-blue-400">{applications.length} Applications</div>
+        {/* Queue summary */}
+        <div className="flex gap-3 self-start sm:self-auto">
+          {[
+            { label: t('status.pending') || 'Pending', value: pendingCount, color: 'var(--warning)' },
+            { label: t('status.approved') || 'Approved', value: approvedCount, color: 'var(--emerald)' },
+            { label: t('common.total') || 'Total', value: applications.length, color: 'var(--text-primary)' },
+          ].map(({ label, value, color }) => (
+            <div
+              key={label}
+              className="text-center px-4 py-2 rounded-xl"
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', minWidth: '70px' }}
+            >
+              <div className="text-xl font-700" style={{ color, fontWeight: 700 }}>{value}</div>
+              <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Main Layout: Applications Queue Sidebar + Detail Desk */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Left Sidebar: Applicant Queue */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-sm">
-          <h2 className="text-base font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
-            <FileText className="w-4 h-4 text-blue-500" />
-            Applicant Queue
-          </h2>
-
-          <div className="space-y-3">
+      {/* ─── Main Layout ─── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Application Queue */}
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+            <h2
+              className="text-sm font-700 flex items-center gap-2"
+              style={{ color: 'var(--text-primary)', fontWeight: 700 }}
+            >
+              <FileText className="w-4 h-4" style={{ color: 'var(--info)' }} />
+              {t('bank.applicationQueue') || 'Application Queue'}
+            </h2>
+          </div>
+          <div className="p-3 space-y-2 max-h-[calc(100vh-220px)] overflow-y-auto scrollbar-thin">
             {applications.map((app) => {
               const isSelected = app.id === selectedAppId;
               const isOversaturated = app.feasibilityReport?.competitorMapping?.isOversaturated;
-
               return (
-                <div
+                <button
                   key={app.id}
                   onClick={() => {
                     setSelectedAppId(app.id);
                     setSelectedSchemeKey(null);
                     setActiveCounterProposal(app.counterProposal || null);
                   }}
-                  className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-                    isSelected
-                      ? 'bg-blue-50/70 dark:bg-slate-800 border-blue-500/60 shadow-md ring-2 ring-blue-500/20'
-                      : 'bg-slate-50/50 dark:bg-slate-950/60 border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-                  }`}
+                  className="w-full text-left p-4 rounded-xl border transition-all"
+                  style={{
+                    background: isSelected ? 'var(--info-light)' : 'var(--bg-elevated)',
+                    borderColor: isSelected ? 'var(--info)' : 'var(--border-subtle)',
+                  }}
                 >
-                  <div className="flex justify-between items-start">
-                    <span className="text-[11px] font-mono font-bold text-slate-400">{app.id}</span>
-                    {app.status === 'APPROVED' ? (
-                      <span className="px-2.5 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-[10px] font-extrabold rounded-full">
-                        Sanctioned
-                      </span>
-                    ) : isOversaturated ? (
-                      <span className="px-2.5 py-0.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 text-[10px] font-extrabold rounded-full flex items-center gap-1">
-                        <AlertTriangle className="w-3 h-3" /> Saturation Flag
-                      </span>
-                    ) : (
-                      <span className="px-2.5 py-0.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/30 text-[10px] font-extrabold rounded-full">
-                        Under Review
-                      </span>
-                    )}
+                  <div className="flex items-start justify-between mb-1">
+                    <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
+                      {app.id}
+                    </span>
+                    <StatusBadge status={app.status} isOversaturated={isOversaturated} t={t} />
                   </div>
-
-                  <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 mt-2">{app.applicantName}</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{app.originalBusinessIdea}</p>
-                  <div className="flex justify-between items-center text-[11px] text-slate-500 dark:text-slate-400 mt-2 pt-2 border-t border-slate-200/60 dark:border-slate-800/60 font-semibold">
-                    <span>Margin: {formatINR(app.availableMarginCapital)}</span>
-                    <span className="text-slate-900 dark:text-slate-200 font-bold">Cost: {formatINR(app.availableMarginCapital / 0.10)}</span>
+                  <div className="text-sm font-600" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
+                    {app.applicantName}
                   </div>
-                </div>
+                  <div className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                    {app.originalBusinessIdea}
+                  </div>
+                  <div className="flex justify-between text-xs mt-2 pt-2" style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--text-muted)' }}>
+                    <span>{t('bank.margin') || 'Margin'}: {formatINR(app.availableMarginCapital)}</span>
+                    <span>{t('bank.cost') || 'Cost'}: {formatINR(app.availableMarginCapital / 0.10)}</span>
+                  </div>
+                </button>
               );
             })}
           </div>
         </div>
 
-        {/* Right Content Area: Application Desk & AI Government Scheme Evaluator */}
-        <div className="lg:col-span-2 space-y-6">
-          
-          {/* Selected Application Card */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 rounded-3xl space-y-6 shadow-sm">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
-              <div>
-                <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Applicant Reference: {selectedApp.id}</span>
-                <h2 className="text-2xl font-black text-slate-900 dark:text-slate-100">{selectedApp.applicantName}</h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Address: {selectedApp.address} | Contact: {selectedApp.contact}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
+        {/* Detail Panel */}
+        {selectedApp && (
+          <div className="lg:col-span-2 space-y-5">
+            {/* Applicant Header */}
+            <div
+              className="rounded-xl p-5"
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+            >
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
+                    {t('bank.ref') || 'Ref'}: {selectedApp.id}
+                  </span>
+                  <h2 className="text-xl font-700 mt-0.5" style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
+                    {selectedApp.applicantName}
+                  </h2>
+                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    {selectedApp.address} · {selectedApp.contact}
+                  </p>
+                </div>
                 <button
                   onClick={() => approveApplication(selectedApp.id)}
                   disabled={selectedApp.status === 'APPROVED'}
-                  className={`px-5 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all ${
-                    selectedApp.status === 'APPROVED'
-                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
-                      : 'bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white shadow-lg'
-                  }`}
+                  className="btn-primary text-sm flex-shrink-0"
+                  style={{
+                    background: selectedApp.status === 'APPROVED' ? 'var(--emerald-light)' : 'var(--text-primary)',
+                    color: selectedApp.status === 'APPROVED' ? 'var(--emerald)' : 'white',
+                    border: selectedApp.status === 'APPROVED' ? '1px solid var(--emerald)' : 'none',
+                  }}
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>{selectedApp.status === 'APPROVED' ? 'Loan Sanctioned' : 'Sanction Loan under Selected Scheme'}</span>
+                  {selectedApp.status === 'APPROVED' ? (t('bank.loanSanctioned') || 'Loan Sanctioned') : (t('bank.sanctionLoan') || 'Sanction Loan')}
                 </button>
               </div>
             </div>
 
-            {/* Scheme Badge Display */}
+            {/* Scheme Badge */}
             <SchemeBadge financial={activeFinancial} />
 
-            {/* Predefined Government Schemes AI Recommender Engine */}
-            <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 space-y-4">
-              <div className="flex justify-between items-center">
+            {/* Government Scheme Comparison */}
+            <div
+              className="rounded-xl p-5"
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+            >
+              <div className="flex items-center justify-between mb-4 pb-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                 <div>
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2.5 py-0.5 rounded-full border border-purple-500/20">
-                    Math & AI Scheme Recommender
+                  <span
+                    className="text-xs font-600 px-2 py-0.5 rounded-full"
+                    style={{ background: 'var(--accent-light)', color: 'var(--accent)', fontWeight: 600 }}
+                  >
+                    {t('bank.aiSchemeRecommender') || 'AI Scheme Recommender'}
                   </span>
-                  <h3 className="text-lg font-extrabold text-slate-900 dark:text-slate-100 mt-1 flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-purple-500" />
-                    Government Predefined Schemes Matching Matrix
+                  <h3 className="text-base font-700 mt-1.5 flex items-center gap-2" style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
+                    <Sparkles className="w-4 h-4" style={{ color: 'var(--accent)' }} />
+                    {t('bank.govtSchemeMatching') || 'Government Scheme Matching'}
                   </h3>
                 </div>
-                <span className="text-xs text-slate-500 font-semibold">Select scheme to override</span>
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('bank.clickToOverride') || 'Click to override'}</span>
               </div>
 
-              {/* Side-by-Side Scheme Comparison Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {schemeOptions.map((opt) => {
-                  const isSelectedScheme = (selectedSchemeKey || activeFinancial.schemeType) === opt.schemeKey;
-
+                  const isActiveScheme = (selectedSchemeKey || activeFinancial.schemeType) === opt.schemeKey;
                   return (
-                    <div
+                    <button
                       key={opt.schemeKey}
                       onClick={() => setSelectedSchemeKey(opt.schemeKey)}
-                      className={`p-4 rounded-2xl border cursor-pointer transition-all space-y-2.5 ${
-                        isSelectedScheme
-                          ? 'bg-white dark:bg-slate-900 border-purple-500 shadow-md ring-2 ring-purple-500/20'
-                          : 'bg-white/60 dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-800 hover:border-purple-300'
-                      }`}
+                      className="text-left p-4 rounded-xl border transition-all space-y-2"
+                      style={{
+                        background: isActiveScheme ? 'var(--accent-light)' : 'var(--bg-elevated)',
+                        borderColor: isActiveScheme ? 'var(--accent)' : 'var(--border-subtle)',
+                      }}
                     >
-                      <div className="flex justify-between items-start">
+                      <div className="flex items-start justify-between">
                         <div>
-                          <span className="text-[10px] font-extrabold text-slate-400 uppercase">{opt.category}</span>
-                          <h4 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">{opt.schemeName}</h4>
+                          <span className="text-xs block" style={{ color: 'var(--text-muted)' }}>{opt.category}</span>
+                          <span className="text-sm font-600 block" style={{ color: isActiveScheme ? 'var(--accent)' : 'var(--text-primary)', fontWeight: 600 }}>
+                            {opt.schemeName}
+                          </span>
                         </div>
                         <span
-                          className={`px-2.5 py-1 rounded-full text-xs font-black border ${
+                          className="badge"
+                          style={
                             opt.suitabilityScore >= 95
-                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
-                              : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30'
-                          }`}
+                              ? { background: 'var(--emerald-light)', color: 'var(--emerald)' }
+                              : { background: 'var(--info-light)', color: 'var(--info)' }
+                          }
                         >
-                          {opt.suitabilityScore}/100 Match
+                          {opt.suitabilityScore}/100
                         </span>
                       </div>
-
-                      <div className="grid grid-cols-3 gap-2 text-[11px] font-semibold bg-slate-50 dark:bg-slate-950 p-2 rounded-xl border border-slate-100 dark:border-slate-800">
+                      <div className="grid grid-cols-3 gap-2 text-xs p-2 rounded-lg" style={{ background: 'rgba(0,0,0,0.04)' }}>
                         <div>
-                          <span className="text-slate-400 text-[10px] block">Interest</span>
-                          <span className="font-bold text-amber-600 dark:text-amber-400">{opt.interestRate}% p.a.</span>
+                          <span className="block" style={{ color: 'var(--text-muted)' }}>{t('calculator.interestRate') || 'Interest'}</span>
+                          <span className="font-600" style={{ color: 'var(--warning)', fontWeight: 600 }}>{opt.interestRate}%</span>
                         </div>
                         <div>
-                          <span className="text-slate-400 text-[10px] block">Tenure</span>
-                          <span className="font-bold text-emerald-600 dark:text-emerald-400">{opt.tenureYears} Yrs</span>
+                          <span className="block" style={{ color: 'var(--text-muted)' }}>{t('calculator.tenure') || 'Tenure'}</span>
+                          <span className="font-600" style={{ color: 'var(--emerald)', fontWeight: 600 }}>{opt.tenureYears}Y</span>
                         </div>
                         <div>
-                          <span className="text-slate-400 text-[10px] block">Subsidy</span>
-                          <span className="font-bold text-purple-600 dark:text-purple-400">
-                            {opt.govtSubsidyAmount > 0 ? formatINR(opt.govtSubsidyAmount) : 'None'}
+                          <span className="block" style={{ color: 'var(--text-muted)' }}>{t('bank.subsidy') || 'Subsidy'}</span>
+                          <span className="font-600" style={{ color: 'var(--accent)', fontWeight: 600 }}>
+                            {opt.govtSubsidyAmount > 0 ? formatINR(opt.govtSubsidyAmount) : (t('common.none') || 'None')}
                           </span>
                         </div>
                       </div>
-
-                      <div className="flex justify-between items-center text-[11px] pt-1">
-                        <span className="text-slate-500 dark:text-slate-400">Net Sanctioned Loan:</span>
-                        <strong className="text-slate-900 dark:text-slate-100 font-extrabold">{formatINR(opt.sanctionedLoan)}</strong>
+                      <div className="flex justify-between text-xs">
+                        <span style={{ color: 'var(--text-muted)' }}>{t('bank.netSanctionedLoan') || 'Net Sanctioned Loan'}</span>
+                        <strong style={{ color: 'var(--text-primary)' }}>{formatINR(opt.sanctionedLoan)}</strong>
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Bank Market Saturation Analysis */}
-            <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-base font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-amber-500" />
-                  Bank-Side AI Market Saturation Radar
+            {/* Market Saturation */}
+            <div
+              className="rounded-xl p-5"
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+            >
+              <div className="flex items-center justify-between mb-4 pb-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                <h3 className="text-base font-700 flex items-center gap-2" style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
+                  <AlertTriangle className="w-4 h-4" style={{ color: 'var(--warning)' }} />
+                  {t('bank.marketSaturationAnalysis') || 'Market Saturation Analysis'}
                 </h3>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold ${
+                  className="badge"
+                  style={
                     selectedApp.feasibilityReport?.competitorMapping?.isOversaturated
-                      ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30'
-                      : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
-                  }`}
+                      ? { background: 'var(--danger-light)', color: 'var(--danger)' }
+                      : { background: 'var(--emerald-light)', color: 'var(--emerald)' }
+                  }
                 >
                   {selectedApp.feasibilityReport?.competitorMapping?.saturationStatus}
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800">
-                  <span className="text-slate-400 block text-[10px]">Existing Units in Block</span>
-                  <span className="text-lg font-black text-slate-900 dark:text-slate-100">
-                    {selectedApp.feasibilityReport?.competitorMapping?.existingSimilarUnits} Units
-                  </span>
-                </div>
-                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800">
-                  <span className="text-slate-400 block text-[10px]">Threshold Limit</span>
-                  <span className="text-lg font-black text-slate-900 dark:text-slate-100">
-                    {selectedApp.feasibilityReport?.competitorMapping?.saturationThreshold} Units
-                  </span>
-                </div>
-                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800">
-                  <span className="text-slate-400 block text-[10px]">Block Density Score</span>
-                  <span className="text-lg font-black text-amber-500">
-                    {selectedApp.feasibilityReport?.competitorMapping?.densityScore}%
-                  </span>
-                </div>
-                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800">
-                  <span className="text-slate-400 block text-[10px]">Repayment Score</span>
-                  <span className="text-lg font-black text-cyan-500">
-                    {selectedApp.feasibilityReport?.competitorMapping?.marketViabilityScore}/100
-                  </span>
-                </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { label: t('bank.existingUnits') || 'Existing Units', value: `${selectedApp.feasibilityReport?.competitorMapping?.existingSimilarUnits} ${t('bank.units') || 'units'}`, color: 'var(--text-primary)' },
+                  { label: t('bank.threshold') || 'Threshold', value: `${selectedApp.feasibilityReport?.competitorMapping?.saturationThreshold} ${t('bank.units') || 'units'}`, color: 'var(--text-primary)' },
+                  { label: t('bank.densityScore') || 'Density Score', value: `${selectedApp.feasibilityReport?.competitorMapping?.densityScore}%`, color: 'var(--warning)' },
+                  { label: t('bank.viabilityScore') || 'Viability Score', value: `${selectedApp.feasibilityReport?.competitorMapping?.marketViabilityScore}/100`, color: 'var(--emerald)' },
+                ].map(({ label, value, color }) => (
+                  <div key={label} className="p-3.5 rounded-xl" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>
+                    <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>{label}</div>
+                    <div className="text-base font-700" style={{ color, fontWeight: 700 }}>{value}</div>
+                  </div>
+                ))}
               </div>
 
-              {/* AI Counter-Proposal Trigger Button */}
               {selectedApp.feasibilityReport?.competitorMapping?.isOversaturated && (
-                <div className="pt-2">
+                <div className="mt-4">
                   <button
                     onClick={handleTriggerAI}
-                    className="w-full py-3.5 px-4 rounded-2xl font-extrabold text-xs bg-gradient-to-r from-amber-600 to-rose-600 text-white shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2"
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-600 transition-all"
+                    style={{
+                      background: 'var(--warning-light)',
+                      color: 'var(--warning)',
+                      border: '1px solid #FDE68A',
+                      fontWeight: 600,
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = '#FDE68A')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--warning-light)')}
                   >
-                    <Sparkles className="w-4 h-4 text-amber-200" />
-                    <span>Trigger AI Counter-Proposal Generator for Oversaturated Business Idea</span>
+                    <Sparkles className="w-4 h-4" />
+                    {t('bank.triggerAiCounterProposal') || 'Trigger AI Counter-Proposal for Oversaturated Business'}
                   </button>
                 </div>
               )}
             </div>
 
-          </div>
-
-          {/* AI Counter-Proposal View Card */}
-          {(activeCounterProposal || selectedApp.counterProposal) && (
-            <div className="bg-white dark:bg-slate-900 border border-amber-500/40 p-6 sm:p-8 rounded-3xl space-y-6 shadow-xl">
-              <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-4">
-                <div>
-                  <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 w-fit mb-1">
-                    <Sparkles className="w-3.5 h-3.5" /> AI Counter-Proposal Triggered
-                  </span>
-                  <h3 className="text-xl font-extrabold text-slate-900 dark:text-slate-100">
-                    Low-Competition High-Profit Alternative Counter-Proposals
-                  </h3>
+            {/* Counter Proposal */}
+            {(activeCounterProposal || selectedApp.counterProposal) && (
+              <div
+                className="rounded-xl p-5 space-y-5 fade-in"
+                style={{ background: 'var(--bg-surface)', border: '1px solid #FDE68A' }}
+              >
+                <div className="flex items-center justify-between pb-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                  <div>
+                    <span
+                      className="badge badge-warning flex items-center gap-1 mb-2 w-fit"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      {t('bank.aiCounterProposalTitle') || 'AI Counter-Proposal'}
+                    </span>
+                    <h3 className="text-base font-700" style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
+                      {t('bank.lowCompetitionHighProfit') || 'Low-Competition High-Profit Alternatives'}
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => handleSendProposalToUser(selectedApp.id)}
+                    disabled={proposalSentAppIds.includes(selectedApp.id)}
+                    className="btn-secondary text-sm flex items-center gap-2"
+                    style={{
+                      background: proposalSentAppIds.includes(selectedApp.id) ? 'var(--emerald-light)' : undefined,
+                      borderColor: proposalSentAppIds.includes(selectedApp.id) ? 'var(--emerald)' : undefined,
+                      color: proposalSentAppIds.includes(selectedApp.id) ? 'var(--emerald)' : undefined,
+                    }}
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    {proposalSentAppIds.includes(selectedApp.id) ? (t('bank.sent') || 'Sent') : (t('bank.sendToEntrepreneur') || 'Send to Entrepreneur')}
+                  </button>
                 </div>
 
-                <button
-                  onClick={() => handleSendProposalToUser(selectedApp.id)}
-                  disabled={proposalSentAppIds.includes(selectedApp.id)}
-                  className={`px-4 py-2 rounded-xl text-xs font-extrabold flex items-center gap-2 ${
-                    proposalSentAppIds.includes(selectedApp.id)
-                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
-                      : 'bg-amber-600 hover:bg-amber-500 text-white shadow-lg'
-                  }`}
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>
-                    {proposalSentAppIds.includes(selectedApp.id) ? 'Sent to Entrepreneur Portal' : 'Send Counter-Proposal to User'}
-                  </span>
-                </button>
-              </div>
+                <p className="text-sm leading-relaxed p-3.5 rounded-xl" style={{ background: 'var(--warning-light)', color: 'var(--text-secondary)' }}>
+                  {(activeCounterProposal || selectedApp.counterProposal).saturationNote}
+                </p>
 
-              <p className="text-xs text-slate-600 dark:text-slate-300 bg-amber-500/10 p-3.5 rounded-2xl border border-amber-500/20 leading-relaxed font-medium">
-                {(activeCounterProposal || selectedApp.counterProposal).saturationNote}
-              </p>
-
-              <div className="space-y-4">
-                <h4 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">
-                  Top 3 AI Recommended High-Profit Alternatives:
-                </h4>
-
-                <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-3">
                   {(activeCounterProposal || selectedApp.counterProposal).alternatives.map((alt, idx) => (
-                    <div key={idx} className="bg-slate-50 dark:bg-slate-950 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-3">
+                    <div
+                      key={idx}
+                      className="p-4 rounded-xl space-y-3"
+                      style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
+                    >
                       <div className="flex justify-between items-start">
                         <div>
-                          <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400 uppercase">Option {idx + 1} • {alt.schemeRecommendation}</span>
-                          <h5 className="text-base font-extrabold text-slate-900 dark:text-slate-100">{alt.title}</h5>
+                          <span className="text-xs font-600" style={{ color: 'var(--warning)', fontWeight: 600 }}>
+                            {t('bank.option') || 'Option'} {idx + 1} · {alt.schemeRecommendation}
+                          </span>
+                          <h4 className="text-base font-700 mt-0.5" style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
+                            {alt.title}
+                          </h4>
                         </div>
-                        <span className="px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-extrabold rounded-full">
-                          Score: {alt.viabilityScore}/100
-                        </span>
+                        <span className="badge badge-success">{t('bank.score') || 'Score'}: {alt.viabilityScore}/100</span>
                       </div>
-
-                      <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{alt.reasoning}</p>
-
-                      <div className="grid grid-cols-3 gap-2 text-xs">
-                        <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200/60 dark:border-slate-800">
-                          <span className="text-slate-400 text-[10px] block">Profit Margin</span>
-                          <span className="font-extrabold text-emerald-600 dark:text-emerald-400">{alt.expectedProfitMargin}</span>
-                        </div>
-                        <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200/60 dark:border-slate-800">
-                          <span className="text-slate-400 text-[10px] block">Payback Period</span>
-                          <span className="font-extrabold text-cyan-600 dark:text-cyan-400">{alt.paybackPeriodYears}</span>
-                        </div>
-                        <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200/60 dark:border-slate-800">
-                          <span className="text-slate-400 text-[10px] block">Density Level</span>
-                          <span className="font-extrabold text-purple-600 dark:text-purple-300">{alt.competitionDensity}</span>
-                        </div>
+                      <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                        {alt.reasoning}
+                      </p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { label: t('bank.profitMargin') || 'Profit Margin', value: alt.expectedProfitMargin, color: 'var(--emerald)' },
+                          { label: t('bank.paybackPeriod') || 'Payback Period', value: alt.paybackPeriodYears, color: 'var(--info)' },
+                          { label: t('bank.competition') || 'Competition', value: alt.competitionDensity, color: 'var(--accent)' },
+                        ].map(({ label, value, color }) => (
+                          <div key={label} className="p-2.5 rounded-lg" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
+                            <div className="text-xs mb-0.5" style={{ color: 'var(--text-muted)' }}>{label}</div>
+                            <div className="text-sm font-600" style={{ color, fontWeight: 600 }}>{value}</div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-
-            </div>
-          )}
-
-        </div>
-
+            )}
+          </div>
+        )}
       </div>
-
     </div>
   );
 }
-
