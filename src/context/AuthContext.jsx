@@ -9,7 +9,8 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [currentRole, setCurrentRole] = useState('entrepreneur'); // 'entrepreneur' | 'bank' | 'admin'
   const [currentUser, setCurrentUser] = useState({
-    name: 'Ramesh Patel',
+    name: 'Arjun Das',
+    businessIdea: 'Green Valley Foods',
     age: 34,
     contact: '+91 98765 43210',
     address: 'At Post Sualkuchi Silk Cluster, Kamrup Rural',
@@ -129,6 +130,14 @@ export const AuthProvider = ({ children }) => {
     );
   };
 
+  const submitPeerFunding = contributeToPool;
+
+  // Reset Demo Data
+  const resetDemoData = () => {
+    setApplications(INITIAL_BANK_APPLICATIONS);
+    setPeerPools(INITIAL_PEER_POOLS);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -143,11 +152,14 @@ export const AuthProvider = ({ children }) => {
         applications,
         peerPools,
         counterProposals,
+        switchRole,
         submitApplication,
         approveApplication,
         triggerCounterProposal,
         acceptCounterProposal,
-        contributeToPool
+        contributeToPool,
+        submitPeerFunding,
+        resetDemoData
       }}
     >
       {children}

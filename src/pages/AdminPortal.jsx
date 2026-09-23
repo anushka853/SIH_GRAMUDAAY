@@ -4,21 +4,63 @@ import { useLanguage } from '../context/LanguageContext';
 import { ADMIN_REGIONAL_METRICS } from '../utils/mockData';
 import { formatINR } from '../utils/financialEngine';
 import {
-  ShieldCheck,
   Building2,
   TrendingUp,
-  MapPin,
   Users,
   Activity,
-  Award,
-  PieChart as PieChartIcon,
-  CheckCircle2,
+  Download,
   Lock,
   Download,
   PlusCircle,
   Gift
 } from 'lucide-react';
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis } from 'recharts';
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+} from 'recharts';
+
+const tooltipStyle = {
+  backgroundColor: 'var(--bg-surface)',
+  borderColor: 'var(--border-default)',
+  borderRadius: '10px',
+  color: 'var(--text-primary)',
+  fontSize: '12px',
+  boxShadow: 'var(--shadow-md)',
+};
+
+function MetricCard({ label, value, sub, icon: Icon, color }) {
+  return (
+    <div
+      className="p-5 rounded-xl"
+      style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+    >
+      <div className="flex items-start justify-between mb-3">
+        <div className="metric-label">{label}</div>
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center"
+          style={{ background: `${color}20`, color }}
+        >
+          <Icon className="w-4 h-4" />
+        </div>
+      </div>
+      <div className="metric-value" style={{ color }}>
+        {value}
+      </div>
+      {sub && (
+        <div className="text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>
+          {sub}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AdminPortal() {
   const { addGovtScheme } = useAuth();
@@ -284,10 +326,22 @@ export default function AdminPortal() {
             <PieChartIcon className="w-5 h-5 text-emerald-600" />
             Government Scheme Allocation Share
           </h3>
-          <div className="h-64 w-full">
+          <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
+            {t('admin.schemeAllocationDesc') || 'Distribution between Micro Finance and Term Loan schemes'}
+          </p>
+          <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                <Pie
+                  data={pieData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={90}
+                  innerRadius={50}
+                  paddingAngle={3}
+                >
                   {pieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
@@ -296,6 +350,18 @@ export default function AdminPortal() {
               </PieChart>
             </ResponsiveContainer>
           </div>
+          {/* Legend */}
+          <div className="flex flex-col gap-2 mt-3">
+            {pieData.map((item) => (
+              <div key={item.name} className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
+                <span>{item.name}</span>
+                <span className="ml-auto font-600" style={{ color: item.color, fontWeight: 600 }}>
+                  {item.value}%
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="bg-white border border-slate-200/90 p-6 rounded-3xl space-y-4 shadow-sm">
@@ -303,7 +369,10 @@ export default function AdminPortal() {
             <MapPin className="w-5 h-5 text-blue-600" />
             District Enterprise Success Comparison
           </h3>
-          <div className="h-64 w-full">
+          <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
+            {t('admin.districtSuccessDesc') || 'Success rate comparison across key target districts'}
+          </p>
+          <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={ADMIN_REGIONAL_METRICS.districtRankings}>
                 <XAxis dataKey="district" stroke="#64748b" fontSize={10} />
@@ -314,7 +383,6 @@ export default function AdminPortal() {
             </ResponsiveContainer>
           </div>
         </div>
-
       </div>
 
       {/* District Rankings Table */}
@@ -331,11 +399,21 @@ export default function AdminPortal() {
           <table className="w-full text-left text-xs text-slate-700">
             <thead className="bg-slate-100 text-slate-500 font-bold uppercase text-[10px] border-b border-slate-200">
               <tr>
-                <th className="px-4 py-3">District & State</th>
-                <th className="px-4 py-3">Active Units</th>
-                <th className="px-4 py-3">Success Rate</th>
-                <th className="px-4 py-3">Fund Disbursed</th>
-                <th className="px-4 py-3">Saturation Risk</th>
+                {[
+                  t('admin.tableDistrict') || 'District',
+                  t('admin.tableActiveUnits') || 'Active Units',
+                  t('admin.tableSuccessRate') || 'Success Rate',
+                  t('admin.tableFundDisbursed') || 'Fund Disbursed',
+                  t('admin.tableSaturationRisk') || 'Saturation Risk'
+                ].map((h, i) => (
+                  <th
+                    key={i}
+                    className="px-5 py-3 text-xs font-600 uppercase tracking-wide"
+                    style={{ color: 'var(--text-muted)', fontWeight: 600 }}
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -347,7 +425,8 @@ export default function AdminPortal() {
                   <td className="px-4 py-3 font-extrabold text-blue-700">{d.fundDisbursed}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${
+                      className="badge"
+                      style={
                         d.saturationRisk.includes('High')
                           ? 'bg-rose-100 text-rose-800 border border-rose-200'
                           : d.saturationRisk.includes('Moderate')
@@ -383,7 +462,6 @@ export default function AdminPortal() {
           <Download className="w-4 h-4" /> Download National Audit Log (PDF)
         </button>
       </div>
-
     </div>
   );
 }

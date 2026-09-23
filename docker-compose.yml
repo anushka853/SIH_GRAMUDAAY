@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  gramuday-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gramuday-ai
+    ports:
+      - "5173:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s

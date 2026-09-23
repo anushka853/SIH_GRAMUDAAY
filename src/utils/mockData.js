@@ -1,8 +1,12 @@
 // Mock Pre-seeded Data for GramUday AI
+// DEMO ENVIRONMENT - ALL DATA IS DETERMINISTIC AND FICTIONAL
+
 import { generateFeasibilityReport } from './aiFeasibilityEngine';
 
 export const SECTIONS_PRESETS = [
-  { key: 'Dairy', label: 'Dairy & Animal Husbandry', icon: 'Milk' },
+  { key: 'FoodProcessing', label: 'Food Processing', icon: 'Wheat' },
+  { key: 'Textiles', label: 'Textiles', icon: 'Scissors' },
+  { key: 'Dairy', label: 'Dairy', icon: 'Milk' },
   { key: 'Retail', label: 'Retail & Kirana Store', icon: 'Store' },
   { key: 'Textiles', label: 'Textiles & Muga/Eri Silk Handloom', icon: 'Scissors' },
   { key: 'SolarAgri', label: 'Solar Power & Agri Irrigation', icon: 'Sun' },
@@ -29,7 +33,32 @@ export const REGIONS_PRESETS = [
   { village: 'Chandgad', block: 'Kolhapur South', district: 'Kolhapur', state: 'Maharashtra', specialty: 'Sugarcane & Jaggery Processing' }
 ];
 
-// Initial Bank Applications Queue for Bank Portal
+// Helper to generate a consistent application payload
+function createDemoApplication(id, applicantName, businessIdea, sectorKey, marginCapital, status, location, appliedAt, bankReview) {
+  const feasibilityReport = generateFeasibilityReport({
+    location,
+    marginCapital,
+    businessIdea,
+    sectorKey
+  });
+  
+  return {
+    id,
+    applicantName,
+    originalBusinessIdea: businessIdea,
+    sectorKey,
+    availableMarginCapital: marginCapital,
+    status,
+    location,
+    appliedAt,
+    feasibilityReport,
+    bankReview
+  };
+}
+
+const silcharLocation = { villageName: 'Demo Village', blockName: 'Silchar Block', districtName: 'Cachar', stateName: 'Assam' };
+
+// Initial Bank Applications Queue for Bank Portal (8 Applications)
 export const INITIAL_BANK_APPLICATIONS = [
   {
     id: 'APP-AS-98421',

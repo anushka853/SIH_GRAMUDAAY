@@ -18,15 +18,13 @@ import {
   CheckCircle2,
   PieChart,
   ArrowRight,
-  ShieldCheck,
-  Award,
-  Layers,
-  Search,
+  Activity,
   DollarSign,
   Briefcase,
-  Activity,
   HeartHandshake,
-  Gift
+  Gift,
+  Volume2,
+  LayoutDashboard,
 } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
 
@@ -34,9 +32,8 @@ export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
   const { currentUser, submitApplication, applications } = useAuth();
   const { t, speak } = useLanguage();
 
-  // Input states
-  const [marginCapital, setMarginCapital] = useState(100000); // Default ₹1L
-  const [businessIdea, setBusinessIdea] = useState('Dairy Enterprise & Organic Milk Unit');
+  const [marginCapital, setMarginCapital] = useState('');
+  const [businessIdea, setBusinessIdea] = useState('');
   const [sectorKey, setSectorKey] = useState('Dairy');
   const [selectedRegionIndex, setSelectedRegionIndex] = useState(0);
   const [chosenSchemeKey, setChosenSchemeKey] = useState('SCA_MICRO');
@@ -58,6 +55,33 @@ export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
   // AI Location Recommendation state
   const [aiRec, setAiRec] = useState(null);
   const [applicationSubmitted, setApplicationSubmitted] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
+
+  // Sync sidebar navigation with internal tabs
+  React.useEffect(() => {
+    if (['assessment', 'my-applications', 'dashboard'].includes(activePage)) {
+      setActiveTab('dashboard');
+    } else if (['feasibility', 'financial-structuring', 'loan-recommendation', 'schemes'].includes(activePage)) {
+      setActiveTab('feasibility');
+    } else if (['repayment-plan', 'funding-status'].includes(activePage)) {
+      setActiveTab('repayment');
+    }
+  }, [activePage]);
+
+  // Pre-fill mock data if user has an active application
+  const userApp = applications.find((a) => a.applicantName === currentUser?.name);
+
+  React.useEffect(() => {
+    if (userApp && !report && !isGenerating) {
+      setMarginCapital(userApp.availableMarginCapital.toString());
+      setBusinessIdea(userApp.originalBusinessIdea);
+      setSectorKey(userApp.sectorKey);
+      setChosenSchemeKey(userApp.feasibilityReport.financial.schemeType || 'SCA_TERM');
+      setReport(userApp.feasibilityReport);
+      setApplicationSubmitted(true);
+    }
+  }, [userApp, report, isGenerating]);
 
   const handleGetAIRecommendation = () => {
     const region = REGIONS_PRESETS[selectedRegionIndex];
@@ -91,15 +115,18 @@ export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
 
   const handleGenerate = (e) => {
     if (e) e.preventDefault();
-    const region = REGIONS_PRESETS[selectedRegionIndex];
-    const generated = generateFeasibilityReport({
-      location: region,
-      marginCapital: Number(marginCapital),
-      businessIdea,
-      sectorKey,
-      chosenSchemeKey
-    });
-    setReport(generated);
+
+    if (!marginCapital || Number(marginCapital) < 10000) {
+      alert(t('error.marginCapital') || 'Please enter a valid margin capital (minimum ₹10,000)');
+      return;
+    }
+    if (!businessIdea.trim()) {
+      alert(t('error.businessIdea') || 'Please enter a business idea');
+      return;
+    }
+
+    setIsGenerating(true);
+    setReport(null);
     setApplicationSubmitted(false);
 
     speak(
@@ -110,6 +137,7 @@ export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
   };
 
   const handleApply = () => {
+    if (!report) return;
     const newApp = {
       id: `APP-${Math.floor(10000 + Math.random() * 90000)}`,
       applicantName: currentUser?.name || 'Ramesh Patel',
@@ -120,17 +148,13 @@ export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
       originalBusinessIdea: report.businessIdea,
       sectorKey,
       availableMarginCapital: report.financial.marginCapital,
-      status: report.competitorMapping.isOversaturated ? 'COUNTER_PROPOSED' : 'PENDING_REVIEW',
+      status: report.competitorMapping.isOversaturated ? 'COUNTER_PROPOSED' : 'PENDING',
       appliedAt: new Date().toISOString(),
-      feasibilityReport: report
+      feasibilityReport: report,
     };
-
     submitApplication(newApp);
     setApplicationSubmitted(true);
   };
-
-  // Find user's existing application status
-  const userApp = applications.find((a) => a.applicantName === currentUser?.name) || applications[0];
 
   return (
     <div className="space-y-8 pb-16 text-slate-900">
@@ -191,7 +215,7 @@ export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
               <Activity className="w-4 h-4 text-cyan-500" />
               <span>Repayment Tracker</span>
             </button>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -302,15 +326,20 @@ export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
                 </select>
               </div>
 
-              {/* Available Margin Capital */}
+              {/* Margin Capital */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-2 flex items-center gap-1">
                   <DollarSign className="w-4 h-4 text-amber-600" />
                   {t('marginCapitalLabel')}
                 </label>
                 <div className="flex gap-2">
-                  <div className="relative w-full">
-                    <span className="absolute left-3.5 top-3 text-slate-400 text-sm font-bold">₹</span>
+                  <div className="relative flex-1">
+                    <span
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-600"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      ₹
+                    </span>
                     <input
                       type="number"
                       step="5000"
@@ -325,7 +354,7 @@ export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
                 </div>
               </div>
 
-              {/* Business Sector & Idea Input */}
+              {/* Business Sector */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-2 flex items-center gap-1">
                   <Briefcase className="w-4 h-4 text-cyan-600" />
@@ -358,7 +387,7 @@ export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
                 <Gift className="w-4 h-4 text-purple-600" />
                 {t('selectGovtSchemeLabel')}
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-6 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
                 {Object.keys(PREDEFINED_GOVT_SCHEMES).map((key) => {
                   const s = PREDEFINED_GOVT_SCHEMES[key];
                   const isSelected = chosenSchemeKey === key;
@@ -423,8 +452,30 @@ export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
                 <p className="text-xs text-slate-500 mt-1">Disbursed by SCA Bank.</p>
               </div>
 
-            </div>
-          </div>
+                {/* SWOT */}
+                <div className="p-5 rounded-xl" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>
+                  <h3 className="text-sm font-600 flex items-center gap-2 mb-4" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
+                    <PieChart className="w-4 h-4" style={{ color: 'var(--info)' }} />
+                    {t('entrepreneur.swot')}
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    {[
+                      { key: 'strengths', label: t('entrepreneur.strengths'), data: report.swot.strengths, color: 'var(--emerald)', bg: 'var(--emerald-light)' },
+                      { key: 'weaknesses', label: t('entrepreneur.weaknesses'), data: report.swot.weaknesses, color: 'var(--danger)', bg: 'var(--danger-light)' },
+                      { key: 'opportunities', label: t('entrepreneur.opportunities'), data: report.swot.opportunities, color: 'var(--info)', bg: 'var(--info-light)' },
+                      { key: 'threats', label: t('entrepreneur.threats'), data: report.swot.threats, color: 'var(--warning)', bg: 'var(--warning-light)' },
+                    ].map(({ key, label, data, color, bg }) => (
+                      <div key={key} className="p-3.5 rounded-xl" style={{ background: bg, border: `1px solid ${color}30` }}>
+                        <span className="text-xs font-700 block mb-2" style={{ color, fontWeight: 700 }}>{label}</span>
+                        <ul className="space-y-1">
+                          {data.map((item, i) => (
+                            <li key={i} className="text-xs" style={{ color: 'var(--text-secondary)' }}>• {item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
           {/* Module 1: 6-Part Hyper-Local AI Feasibility Report View */}
           <div className="bg-white border border-slate-200/90 p-6 sm:p-8 rounded-3xl space-y-8 shadow-sm">
@@ -476,8 +527,6 @@ export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
                     AI Market Radar flagged high competitor density in {report.rawLocation.blockName}. In the Bank Employee Portal, an automated AI Counter-Proposal will suggest 3 higher-profit, low-competition alternative enterprise models!
                   </p>
                 </div>
-              </div>
-            )}
 
             {/* Grid of 6 Feasibility Modules */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -587,12 +636,11 @@ export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
                 </ResponsiveContainer>
               </div>
             </div>
-
-          </div>
+          )}
         </>
       )}
 
-      {/* Repayment Progress Tracker Tab */}
+      {/* ─── Repayment Tab ─── */}
       {activeTab === 'repayment' && (
         <div className="bg-white border border-slate-200/90 p-6 sm:p-8 rounded-3xl space-y-6 shadow-sm">
           <div className="flex justify-between items-center border-b border-slate-100 pb-4">
@@ -626,7 +674,42 @@ export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
                   {formatINR(userApp.feasibilityReport.financial.sanctionedLoan)}
                 </div>
               </div>
+              <h3 className="text-lg font-600 mb-2" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
+                {t('entrepreneur.noActiveApplications') || 'No Active Applications'}
+              </h3>
+              <p className="text-sm max-w-md mx-auto" style={{ color: 'var(--text-secondary)' }}>
+                {t('entrepreneur.noActiveApplicationsDesc') || 'Generate a feasibility report and apply for a bank loan to track repayment milestones here.'}
+              </p>
+              <button
+                onClick={() => setActiveTab('feasibility')}
+                className="btn-primary mt-5 text-sm"
+              >
+                {t('entrepreneur.generateReport')}
+                <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
+          ) : (
+            <>
+              {/* Active Loan Summary */}
+              <div
+                className="p-5 rounded-xl"
+                style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
+              >
+                <div className="flex flex-col sm:flex-row justify-between gap-4">
+                  <div>
+                    <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('entrepreneur.activeBorrower') || 'Active Borrower'}</span>
+                    <h3 className="text-lg font-700 mt-0.5" style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
+                      {userApp.applicantName}
+                    </h3>
+                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{userApp.originalBusinessIdea}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('entrepreneur.totalSanctioned') || 'Total Sanctioned'}</span>
+                    <div className="metric-value mt-0.5" style={{ color: 'var(--emerald)' }}>
+                      {formatINR(userApp.feasibilityReport.financial.sanctionedLoan)}
+                    </div>
+                  </div>
+                </div>
 
             {/* Repayment Progress Bar */}
             <div className="space-y-2 pt-2">
@@ -637,8 +720,6 @@ export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
               <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden border border-slate-300">
                 <div className="bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full w-1/4"></div>
               </div>
-            </div>
-          </div>
 
           {/* Quarterly Repayment Table */}
           <div className="overflow-x-auto rounded-2xl border border-slate-200">
@@ -689,7 +770,6 @@ export default function EntrepreneurPortal({ initialSubTab = 'chat' }) {
           </div>
         </div>
       )}
-
     </div>
   );
 }

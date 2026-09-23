@@ -1,11 +1,10 @@
 import React from 'react';
-import { ShieldCheck, Percent, Clock, Calendar, Gift, Award, DollarSign } from 'lucide-react';
+import { ShieldCheck, Percent, Clock, Calendar, DollarSign, Gift } from 'lucide-react';
 import { formatINR } from '../utils/financialEngine';
 
 export default function SchemeBadge({ financial }) {
   if (!financial) return null;
 
-  const isMicro = financial.schemeType === 'SCA_MICRO';
   const hasSubsidy = financial.govtSubsidyAmount > 0;
 
   return (
@@ -77,6 +76,7 @@ export default function SchemeBadge({ financial }) {
         </div>
       </div>
 
+      {/* Subsidy banner */}
       {hasSubsidy && (
         <div className="mt-4 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between text-xs">
           <span className="font-bold text-amber-300 flex items-center gap-1.5">

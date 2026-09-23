@@ -1,0 +1,605 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GramUdyam AI - Rural Enterprise Assistant</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --bg-primary: #0B0D0F;
+  --bg-secondary: #111315;
+  --bg-tertiary: #17191C;
+  --bg-hover: #1D2024;
+  --border: #2A2D31;
+  --text-primary: #F2F2F2;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
+  --accent: #10A37F;
+  --accent-hover: #0d8f6f;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebar-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.brand-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.brand-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.new-chat-btn {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-hover);
+  border: none;
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+
+.new-chat-btn:hover {
+  background: var(--border);
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 12px;
+}
+
+.nav-section {
+  margin-bottom: 24px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.nav-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.nav-item.active {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.history-section {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.history-label {
+  padding: 0 12px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.history-group {
+  margin-bottom: 20px;
+}
+
+.history-time {
+  padding: 0 12px 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.history-item {
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.history-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-btn {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  color: var(--text-primary);
+}
+
+.user-btn:hover {
+  background: var(--bg-hover);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.user-info {
+  flex: 1;
+  text-align: left;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.user-role {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Workspace */
+.workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.workspace-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px 200px;
+  overflow-y: auto;
+}
+
+.welcome {
+  max-width: 720px;
+  width: 100%;
+  text-align: center;
+}
+
+.ai-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.welcome h1 {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.welcome p {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+
+.suggestions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 48px;
+}
+
+.suggestion-btn {
+  padding: 16px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-align: left;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.suggestion-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--text-muted);
+}
+
+/* Input Area */
+.input-area {
+  position: fixed;
+  bottom: 0;
+  left: 260px;
+  right: 0;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border);
+  padding: 24px;
+}
+
+.input-container {
+  max-width: 720px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.chat-input {
+  width: 100%;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px 140px 12px 16px;
+  color: var(--text-primary);
+  font-size: 15px;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s;
+  line-height: 1.5;
+  min-height: 48px;
+  max-height: 200px;
+}
+
+.chat-input:focus {
+  border-color: var(--accent);
+}
+
+.chat-input::placeholder {
+  color: var(--text-muted);
+}
+
+.input-actions {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-size: 18px;
+}
+
+.action-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.action-btn.send-btn {
+  background: var(--accent);
+  color: white;
+}
+
+.action-btn.send-btn:hover {
+  background: var(--accent-hover);
+}
+
+.action-btn:disabled {
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+/* Icons */
+.icon {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    transition: left 0.3s;
+  }
+  
+  .sidebar.open {
+    left: 0;
+  }
+  
+  .input-area {
+    left: 0;
+  }
+  
+  .suggestions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome h1 {
+    font-size: 24px;
+  }
+  
+  .welcome p {
+    font-size: 14px;
+  }
+  
+  .suggestion-btn {
+    font-size: 13px;
+    padding: 14px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <div class="brand-icon">🏛️</div>
+        <div class="brand-name">GramUdyam AI</div>
+      </div>
+      <button class="new-chat-btn" onclick="newChat()">
+        <span class="icon">➕</span>
+        New Chat
+      </button>
+    </div>
+
+    <div class="sidebar-content">
+      <div class="nav-section">
+        <button class="nav-item active" onclick="navigate('home')">
+          <span class="icon">🏠</span>
+          Home
+        </button>
+        <button class="nav-item" onclick="navigate('reports')">
+          <span class="icon">📄</span>
+          Reports
+        </button>
+        <button class="nav-item" onclick="navigate('analytics')">
+          <span class="icon">📈</span>
+          Analytics
+        </button>
+        <button class="nav-item" onclick="navigate('enterprise')">
+          <span class="icon">💼</span>
+          Enterprise Intelligence
+        </button>
+        <button class="nav-item" onclick="navigate('schemes')">
+          <span class="icon">🏛️</span>
+          Government Schemes
+        </button>
+        <button class="nav-item" onclick="navigate('alerts')">
+          <span class="icon">🔔</span>
+          Alerts / Monitoring
+        </button>
+      </div>
+
+      <div class="history-section">
+        <div class="history-label">Chat History</div>
+        
+        <div class="history-group">
+          <div class="history-time">Today</div>
+          <button class="history-item">Rural enterprise funding query</button>
+          <button class="history-item">District performance analysis</button>
+          <button class="history-item">PM scheme eligibility</button>
+        </div>
+
+        <div class="history-group">
+          <div class="history-time">Yesterday</div>
+          <button class="history-item">Bihar enterprise analysis</button>
+          <button class="history-item">Assam district report</button>
+          <button class="history-item">Government funding comparison</button>
+        </div>
+
+        <div class="history-group">
+          <div class="history-time">Previous 7 Days</div>
+          <button class="history-item">Enterprise survival report</button>
+          <button class="history-item">Scheme allocation analysis</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-menu">
+        <button class="user-btn">
+          <div class="user-avatar">👤</div>
+          <div class="user-info">
+            <div class="user-name">Ramesh Patel</div>
+            <div class="user-role">System Admin</div>
+          </div>
+          <span style="color: var(--text-secondary);">⌄</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Workspace -->
+  <div class="workspace">
+    <div class="workspace-content">
+      <div class="welcome">
+        <div class="ai-icon">✨</div>
+        <h1>How can I help you today?</h1>
+        <p>Ask about rural enterprises, government schemes, district performance, funding, or reports.</p>
+
+        <div class="suggestions">
+          <button class="suggestion-btn" onclick="fillInput(this.textContent)">
+            Analyze enterprise survival in Bihar
+          </button>
+          <button class="suggestion-btn" onclick="fillInput(this.textContent)">
+            Show government funding distribution
+          </button>
+          <button class="suggestion-btn" onclick="fillInput(this.textContent)">
+            Compare district performance
+          </button>
+          <button class="suggestion-btn" onclick="fillInput(this.textContent)">
+            Generate a scheme allocation report
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-container">
+        <div class="input-wrapper">
+          <textarea 
+            class="chat-input" 
+            placeholder="Ask anything about rural enterprises..."
+            rows="1"
+            oninput="autoResize(this)"
+          ></textarea>
+          <div class="input-actions">
+            <button class="action-btn" title="Attach file">📎</button>
+            <button class="action-btn" title="Voice input">🎤</button>
+            <button class="action-btn send-btn" disabled title="Send message">↑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function autoResize(textarea) {
+  textarea.style.height = 'auto';
+  textarea.style.height = textarea.scrollHeight + 'px';
+  
+  const sendBtn = textarea.parentElement.querySelector('.send-btn');
+  sendBtn.disabled = !textarea.value.trim();
+}
+
+function fillInput(text) {
+  const input = document.querySelector('.chat-input');
+  input.value = text;
+  input.focus();
+  autoResize(input);
+}
+
+function newChat() {
+  const input = document.querySelector('.chat-input');
+  input.value = '';
+  autoResize(input);
+  console.log('New chat started');
+}
+
+function navigate(page) {
+  const items = document.querySelectorAll('.nav-item');
+  items.forEach(item => item.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  console.log('Navigating to:', page);
+}
+</script>
+
+</body>
+</html>

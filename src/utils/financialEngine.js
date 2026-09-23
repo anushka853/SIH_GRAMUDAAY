@@ -88,8 +88,8 @@ export const PREDEFINED_GOVT_SCHEMES = {
 export function calculateFinancialScheme(marginCapital, schemeKey = null) {
   const margin = Math.max(1000, Number(marginCapital) || 0);
   
-  // Mathematical Algorithm Rule 1: Total Feasible Project Cost = Margin Capital / 0.10 (10% Contribution)
-  const totalProjectCost = Math.round(margin / 0.10);
+  // Mathematical Algorithm Rule 1: Total Feasible Project Cost = Margin Capital * 10 (10% Contribution)
+    const totalProjectCost = Math.round(margin * 10);
   
   // Mathematical Algorithm Rule 2: Maximum Loan Eligibility = 90% of Total Project Cost
   const maxLoanAmount = Math.round(totalProjectCost * 0.90);
@@ -117,7 +117,16 @@ export function calculateFinancialScheme(marginCapital, schemeKey = null) {
   const govtSubsidyAmount = Math.round(totalProjectCost * (subsidyPercent / 100));
 
   // Net Disbursed Loan after Subsidy Deduction ($L_{net} = L_{max} - S$)
-  const sanctionedLoan = Math.max(10000, maxLoanAmount - govtSubsidyAmount);
+  let sanctionedLoan = Math.max(10000, maxLoanAmount - govtSubsidyAmount);
+  let capReason = null;
+
+  if (schemeType === 'SCA_MICRO' && sanctionedLoan > 125000) {
+    sanctionedLoan = 125000;
+    capReason = 'Scheme maximum financing cap applied (₹1.25 Lakh).';
+  } else if (schemeType === 'SCA_TERM' && sanctionedLoan > 4500000) {
+    sanctionedLoan = 4500000;
+    capReason = 'Scheme maximum financing cap applied (₹45 Lakh).';
+  }
 
   // EMI Amortization Schedule Calculation (Quarterly Basis)
   // Quarterly Rate $r = \frac{\text{Annual Interest Rate}}{4 \times 100}$
@@ -185,6 +194,7 @@ export function calculateFinancialScheme(marginCapital, schemeKey = null) {
     govtSubsidyAmount,
     subsidyPercent,
     sanctionedLoan,
+    capReason,
     schemeType,
     schemeName,
     schemeDetails: selectedScheme,
@@ -208,7 +218,7 @@ export function calculateFinancialScheme(marginCapital, schemeKey = null) {
  */
 export function compareGovernmentSchemes(marginCapital, sectorKey = 'Dairy') {
   const margin = Number(marginCapital) || 100000;
-  const projectCost = margin / 0.10;
+  const projectCost = Math.round(margin * 10);
 
   const schemeKeys = Object.keys(PREDEFINED_GOVT_SCHEMES);
 

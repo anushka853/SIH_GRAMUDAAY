@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { formatINR } from '../utils/financialEngine';
-import { HeartHandshake, Users, ShieldCheck, Plus, CheckCircle2, DollarSign, Sparkles } from 'lucide-react';
+import { HeartHandshake, Users, ShieldCheck, CheckCircle2, X } from 'lucide-react';
 
 export default function PeerPooling() {
   const { peerPools, contributeToPool } = useAuth();
@@ -15,10 +15,9 @@ export default function PeerPooling() {
   const handleContribute = (e) => {
     e.preventDefault();
     if (!selectedPoolId) return;
-
     contributeToPool(selectedPoolId, contributionAmount);
     setContributionSuccess(true);
-    speak(`Thank you! Your micro-investment of ${formatINR(contributionAmount)} has been credited to the peer margin pool.`);
+    speak(t('peer.voiceSuccess') || `Thank you! Your micro-investment of ${formatINR(contributionAmount)} has been credited to the peer margin pool.`);
     setTimeout(() => {
       setContributionSuccess(false);
       setSelectedPoolId(null);
@@ -55,17 +54,17 @@ export default function PeerPooling() {
         </button>
       </div>
 
-      {/* Peer Pool Campaigns Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* ─── Pool Cards ─── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {peerPools.map((pool) => {
           const percentRaised = Math.min(100, Math.round((pool.raisedMarginCurrent / pool.requiredMarginTotal) * 100));
-
           return (
             <div
               key={pool.id}
               className="bg-white p-6 rounded-3xl space-y-4 border border-slate-200/90 hover:border-teal-400 transition-all shadow-sm"
             >
-              <div className="flex justify-between items-start">
+              {/* Header */}
+              <div className="flex items-start justify-between">
                 <div>
                   <span className="text-[11px] font-bold text-teal-700 uppercase tracking-wider">{pool.category}</span>
                   <h3 className="text-xl font-extrabold text-slate-900 mt-1">{pool.ventureTitle}</h3>
@@ -82,6 +81,20 @@ export default function PeerPooling() {
               <p className="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 leading-relaxed">
                 "{pool.story}"
               </p>
+
+              {/* Funding Stats */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: t('peer.raised') || 'Raised', value: formatINR(pool.raisedMarginCurrent), color: 'var(--emerald)' },
+                  { label: t('peer.target') || 'Target', value: formatINR(pool.requiredMarginTotal), color: 'var(--text-primary)' },
+                  { label: t('peer.daysRemaining') || 'Days Left', value: `${pool.daysLeft}d`, color: 'var(--warning)' },
+                ].map(({ label, value, color }) => (
+                  <div key={label} className="text-center">
+                    <div className="text-sm font-700" style={{ color, fontWeight: 700 }}>{value}</div>
+                    <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{label}</div>
+                  </div>
+                ))}
+              </div>
 
               {/* Progress Bar */}
               <div className="space-y-2">
@@ -107,20 +120,20 @@ export default function PeerPooling() {
                 </div>
               </div>
 
-              {/* Action Button */}
+              {/* CTA */}
               <button
                 onClick={() => setSelectedPoolId(pool.id)}
                 className="w-full py-3 rounded-xl text-xs font-extrabold bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <HeartHandshake className="w-4 h-4" />
-                <span>Micro-Invest in this Peer Margin Pool</span>
+                {t('peer.investInPool') || 'Invest in this Pool'}
               </button>
             </div>
           );
         })}
       </div>
 
-      {/* Contribution Modal */}
+      {/* ─── Contribution Modal ─── */}
       {selectedPoolId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
@@ -145,7 +158,12 @@ export default function PeerPooling() {
                     Contribution Amount (₹)
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3.5 top-3 text-slate-400 text-sm font-bold">₹</span>
+                    <span
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-600"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      ₹
+                    </span>
                     <input
                       type="number"
                       step="500"
@@ -158,7 +176,8 @@ export default function PeerPooling() {
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                {/* Quick amounts */}
+                <div className="grid grid-cols-4 gap-2">
                   {[500, 1000, 2500, 5000].map((amt) => (
                     <button
                       key={amt}
@@ -181,13 +200,13 @@ export default function PeerPooling() {
                     onClick={() => setSelectedPoolId(null)}
                     className="w-1/2 py-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer"
                   >
-                    Cancel
+                    {t('common.cancel') || 'Cancel'}
                   </button>
                   <button
                     type="submit"
                     className="w-1/2 py-2.5 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-md cursor-pointer"
                   >
-                    Confirm Peer Transfer
+                    {t('peer.confirmTransfer') || 'Confirm Transfer'}
                   </button>
                 </div>
               </form>
@@ -195,7 +214,6 @@ export default function PeerPooling() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

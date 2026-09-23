@@ -6,29 +6,28 @@ import { formatINR, compareGovernmentSchemes, calculateFinancialScheme, PREDEFIN
 import { evaluateMarketSituation } from '../utils/aiFeasibilityEngine';
 import {
   Building2,
-  ShieldCheck,
   AlertTriangle,
   CheckCircle2,
   Sparkles,
-  ArrowRight,
   Send,
-  Search,
   FileText,
-  Users,
-  Briefcase,
-  Award,
-  Gift,
-  Calculator,
-  Percent,
-  Check,
-  ChevronDown
 } from 'lucide-react';
+
+function StatusBadge({ status, isOversaturated, t }) {
+  if (status === 'APPROVED') {
+    return <span className="badge badge-success">{t('status.APPROVED') || 'Approved'}</span>;
+  }
+  if (status === 'COUNTER_PROPOSED' || isOversaturated) {
+    return <span className="badge badge-warning">{t('status.saturationFlag') || 'Saturation Flag'}</span>;
+  }
+  return <span className="badge badge-info">{t('status.under_review') || 'Under Review'}</span>;
+}
 
 export default function BankPortal() {
   const { applications, approveApplication, triggerCounterProposal } = useAuth();
   const { t, speak } = useLanguage();
 
-  const [selectedAppId, setSelectedAppId] = useState(applications[0]?.id || 'APP-98421');
+  const [selectedAppId, setSelectedAppId] = useState(applications[0]?.id || '');
   const [activeCounterProposal, setActiveCounterProposal] = useState(null);
   const [proposalSentAppIds, setProposalSentAppIds] = useState([]);
   const [marketCheckResult, setMarketCheckResult] = useState(null);
@@ -51,8 +50,6 @@ export default function BankPortal() {
   const marginCap = selectedApp?.availableMarginCapital || 100000;
   const sectorKey = selectedApp?.sectorKey || 'Dairy';
   const schemeOptions = compareGovernmentSchemes(marginCap, sectorKey);
-
-  // Active calculated financial metrics based on officer scheme selection
   const activeFinancial = calculateFinancialScheme(marginCap, selectedSchemeKey || selectedApp?.feasibilityReport?.financial?.schemeType);
 
   const handleTriggerAI = () => {
@@ -67,6 +64,9 @@ export default function BankPortal() {
   const handleSendProposalToUser = (appId) => {
     setProposalSentAppIds((prev) => [...prev, appId]);
   };
+
+  const pendingCount = applications.filter((a) => a.status === 'PENDING_REVIEW' || a.status === 'COUNTER_PROPOSED').length;
+  const approvedCount = applications.filter((a) => a.status === 'APPROVED').length;
 
   return (
     <div className="space-y-8 pb-16 text-slate-900">
@@ -110,9 +110,8 @@ export default function BankPortal() {
             {applications.map((app) => {
               const isSelected = app.id === selectedAppId;
               const isOversaturated = app.feasibilityReport?.competitorMapping?.isOversaturated;
-
               return (
-                <div
+                <button
                   key={app.id}
                   onClick={() => {
                     setSelectedAppId(app.id);
@@ -148,7 +147,14 @@ export default function BankPortal() {
                     <span>Margin: {formatINR(app.availableMarginCapital)}</span>
                     <span className="text-slate-900 font-bold">Cost: {formatINR(app.availableMarginCapital / 0.10)}</span>
                   </div>
-                </div>
+                  <div className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                    {app.originalBusinessIdea}
+                  </div>
+                  <div className="flex justify-between text-xs mt-2 pt-2" style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--text-muted)' }}>
+                    <span>{t('bank.margin') || 'Margin'}: {formatINR(app.availableMarginCapital)}</span>
+                    <span>{t('bank.cost') || 'Cost'}: {formatINR(app.availableMarginCapital / 0.10)}</span>
+                  </div>
+                </button>
               );
             })}
           </div>
@@ -249,16 +255,14 @@ export default function BankPortal() {
                     Government Predefined Schemes Matching Matrix
                   </h3>
                 </div>
-                <span className="text-xs text-slate-500 font-semibold">Select scheme to override</span>
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('bank.clickToOverride') || 'Click to override'}</span>
               </div>
 
-              {/* Side-by-Side Scheme Comparison Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {schemeOptions.map((opt) => {
-                  const isSelectedScheme = (selectedSchemeKey || activeFinancial.schemeType) === opt.schemeKey;
-
+                  const isActiveScheme = (selectedSchemeKey || activeFinancial.schemeType) === opt.schemeKey;
                   return (
-                    <div
+                    <button
                       key={opt.schemeKey}
                       onClick={() => setSelectedSchemeKey(opt.schemeKey)}
                       className={`p-4 rounded-2xl border cursor-pointer transition-all space-y-2.5 ${
@@ -267,19 +271,20 @@ export default function BankPortal() {
                           : 'bg-white/70 border-slate-200 hover:border-purple-300'
                       }`}
                     >
-                      <div className="flex justify-between items-start">
+                      <div className="flex items-start justify-between">
                         <div>
                           <span className="text-[10px] font-extrabold text-slate-400 uppercase">{opt.category}</span>
                           <h4 className="text-sm font-extrabold text-slate-900">{opt.schemeName}</h4>
                         </div>
                         <span
-                          className={`px-2.5 py-1 rounded-full text-xs font-black border ${
+                          className="badge"
+                          style={
                             opt.suitabilityScore >= 95
                               ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
                               : 'bg-blue-100 text-blue-800 border-blue-200'
                           }`}
                         >
-                          {opt.suitabilityScore}/100 Match
+                          {opt.suitabilityScore}/100
                         </span>
                       </div>
 
@@ -304,7 +309,7 @@ export default function BankPortal() {
                         <span className="text-slate-500">Net Sanctioned Loan:</span>
                         <strong className="text-slate-900 font-extrabold">{formatINR(opt.sanctionedLoan)}</strong>
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -318,7 +323,8 @@ export default function BankPortal() {
                   Bank-Side AI Market Saturation Radar
                 </h3>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold ${
+                  className="badge"
+                  style={
                     selectedApp.feasibilityReport?.competitorMapping?.isOversaturated
                       ? 'bg-rose-100 text-rose-800 border border-rose-200'
                       : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
@@ -355,9 +361,8 @@ export default function BankPortal() {
                 </div>
               </div>
 
-              {/* AI Counter-Proposal Trigger Button */}
               {selectedApp.feasibilityReport?.competitorMapping?.isOversaturated && (
-                <div className="pt-2">
+                <div className="mt-4">
                   <button
                     onClick={handleTriggerAI}
                     className="w-full py-3.5 px-4 rounded-2xl font-extrabold text-xs bg-gradient-to-r from-amber-600 to-rose-600 text-white shadow-md hover:brightness-105 transition-all flex items-center justify-center gap-2 cursor-pointer"
@@ -409,7 +414,7 @@ export default function BankPortal() {
                   Top 3 AI Recommended High-Profit Alternatives:
                 </h4>
 
-                <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-3">
                   {(activeCounterProposal || selectedApp.counterProposal).alternatives.map((alt, idx) => (
                     <div key={idx} className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
                       <div className="flex justify-between items-start">
@@ -442,14 +447,10 @@ export default function BankPortal() {
                   ))}
                 </div>
               </div>
-
-            </div>
-          )}
-
-        </div>
-
+            )}
+          </div>
+        )}
       </div>
-
     </div>
   );
 }

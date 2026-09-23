@@ -29,7 +29,12 @@ export default function LoginModal({ isOpen, onClose }) {
     e.preventDefault();
     const region = REGIONS_PRESETS[selectedRegionIdx] || REGIONS_PRESETS[0];
     const userDetails = {
-      name: selectedRole === 'entrepreneur' ? name : selectedRole === 'bank' ? `Officer (${staffId})` : 'System Administrator',
+      name:
+        selectedRole === 'entrepreneur'
+          ? name
+          : selectedRole === 'bank'
+          ? `Officer (${staffId})`
+          : 'System Administrator',
       age: Number(age),
       contact,
       address,
@@ -39,6 +44,32 @@ export default function LoginModal({ isOpen, onClose }) {
     };
     switchRole(selectedRole, userDetails);
     onClose();
+  };
+
+  const roleOptions = [
+    { id: 'entrepreneur', label: t('roles.entrepreneur') || 'Entrepreneur', icon: User, color: '#059669', bg: '#DCFCE7' },
+    { id: 'bank', label: t('roles.bank') || 'Bank Officer', icon: Building2, color: '#2563EB', bg: '#DBEAFE' },
+    { id: 'admin', label: t('roles.admin') || 'System Admin', icon: ShieldCheck, color: '#D97706', bg: '#FEF3C7' },
+  ];
+
+  const inputStyle = {
+    width: '100%',
+    background: 'var(--bg-input)',
+    border: '1px solid var(--border-default)',
+    borderRadius: 'var(--radius-lg)',
+    padding: '0.625rem 0.875rem',
+    fontSize: '0.9375rem',
+    color: 'var(--text-primary)',
+    outline: 'none',
+    transition: 'border-color 150ms ease',
+  };
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: '0.8125rem',
+    fontWeight: 500,
+    color: 'var(--text-secondary)',
+    marginBottom: '0.375rem',
   };
 
   return (

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Mic, MicOff, Loader2 } from 'lucide-react';
+import { Mic, Loader2 } from 'lucide-react';
 import { startVoiceRecognition } from '../utils/speechUtils';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function VoiceButton({ onTranscript, placeholder = 'Voice input...' }) {
-  const { lang } = useLanguage();
+export default function VoiceButton({ onTranscript }) {
+  const { lang, t } = useLanguage();
   const [isListening, setIsListening] = useState(false);
   const [recognitionInstance, setRecognitionInstance] = useState(null);
 
@@ -33,22 +33,25 @@ export default function VoiceButton({ onTranscript, placeholder = 'Voice input..
     setRecognitionInstance(recognition);
   };
 
+  const titleText = isListening ? (t('voice.stopListening') || 'Stop Listening') : (t('voice.placeholder') || 'Voice input...');
+
   return (
     <button
       type="button"
       onClick={toggleListening}
-      title={isListening ? 'Stop Listening' : 'Speak to Input (Voice Dictation)'}
-      className={`p-2.5 rounded-xl border transition-all flex items-center justify-center ${
-        isListening
-          ? 'bg-rose-600 text-white border-rose-500 animate-pulse shadow-lg shadow-rose-900/50'
-          : 'bg-slate-800/90 text-emerald-400 border-slate-700 hover:border-emerald-500 hover:bg-slate-800'
-      }`}
+      title={titleText}
+      className="flex items-center justify-center rounded-lg transition-all flex-shrink-0"
+      style={{
+        width: '2.375rem',
+        height: '2.375rem',
+        background: isListening ? 'var(--danger-light)' : 'var(--bg-elevated)',
+        color: isListening ? 'var(--danger)' : 'var(--text-muted)',
+        border: isListening ? '1px solid var(--danger)' : '1px solid var(--border-default)',
+        animation: isListening ? 'pulseSub 1.5s ease-in-out infinite' : 'none',
+      }}
     >
       {isListening ? (
-        <div className="flex items-center gap-1.5 text-xs font-semibold">
-          <Loader2 className="w-4 h-4 animate-spin text-white" />
-          <span className="text-[11px]">Listening...</span>
-        </div>
+        <Loader2 className="w-4 h-4 animate-spin" />
       ) : (
         <Mic className="w-4 h-4" />
       )}

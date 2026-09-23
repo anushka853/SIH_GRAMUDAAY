@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import './App.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { LanguageProvider, useLanguage } from './context/LanguageContext';
-import Navbar from './components/Navbar';
+import { LanguageProvider } from './context/LanguageContext';
+import LandingPage from './components/LandingPage';
+import Sidebar from './components/Sidebar';
+import Topbar from './components/Topbar';
+import ChatWorkspace from './components/ChatWorkspace';
 import LoginModal from './components/LoginModal';
 import GovtSchemesModal from './components/GovtSchemesModal';
 import AirtableWorkflowNav from './components/AirtableWorkflowNav';

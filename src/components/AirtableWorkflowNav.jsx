@@ -56,6 +56,7 @@ export default function AirtableWorkflowNav({ activePhase, onPhaseChange }) {
         </span>
       </div>
 
+      {/* Phase Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {phases.map((p) => {
           const isActive = activePhase === p.id;
@@ -64,9 +65,13 @@ export default function AirtableWorkflowNav({ activePhase, onPhaseChange }) {
               key={p.id}
               onClick={() => {
                 onPhaseChange(p.id);
-                if (currentRole !== p.role) {
-                  switchRole(p.role);
-                }
+                if (currentRole !== p.role) switchRole(p.role);
+              }}
+              className="text-left p-4 rounded-xl border transition-all"
+              style={{
+                background: isActive ? p.accentLight : 'var(--bg-elevated)',
+                borderColor: isActive ? p.accentColor : 'var(--border-subtle)',
+                boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
               }}
               className={`text-left p-4 rounded-2xl transition-all border cursor-pointer ${
                 isActive

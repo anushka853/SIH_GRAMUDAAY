@@ -125,6 +125,7 @@ export const TRANSLATIONS = {
     chatgptAskPlaceholder: 'Type or speak: e.g. I have ₹15,000 in Sualkuchi for Dairy...',
     chatgptSendBtn: 'Send Message'
   },
+
   hi: {
     appTitle: 'ग्रामउदय AI',
     appSubTitle: 'राष्ट्रीय ग्रामीण उद्यम व्यवहार्यता एवं ऋण परामर्श प्रणाली',
@@ -335,6 +336,7 @@ export const TRANSLATIONS = {
     chatgptAskPlaceholder: 'লিখক বা কওক: যেনে মোৰ ১৫,০০০ টকা আছে...',
     chatgptSendBtn: 'প্ৰেৰণ কৰক'
   },
+
   bn: {
     appTitle: 'গ্রামউদয় AI',
     appSubTitle: 'জাতীয় গ্রামীণ উদ্যোগ সম্ভাবনা ও ঋণ পরামর্শ প্ল্যাটফর্ম',
