@@ -25,51 +25,33 @@ export default function PeerPooling() {
   };
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* ─── Page Header ─── */}
-      <div>
-        <p className="page-eyebrow mb-2">{t('peer.pageEyebrow') || 'Broker-Free Community Finance · SCA Verified'}</p>
-        <h1 className="page-title">{t('peer.communityFunding') || 'Community Capital'}</h1>
-        <p className="page-subtitle mt-2 max-w-2xl">
-          {t('peer.pageSubtitle') || 'Connect viable rural businesses with community members willing to support their growth. Eliminating intermediary brokers and predatory moneylenders.'}
-        </p>
-      </div>
-
-      {/* ─── Summary Metrics ─── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {[
-          {
-            label: t('peer.activePools') || 'Active Pools',
-            value: peerPools.length,
-            color: 'var(--emerald)',
-          },
-          {
-            label: t('peer.fundingRequired') || 'Total Required',
-            value: formatINR(peerPools.reduce((s, p) => s + p.requiredMarginTotal, 0)),
-            color: 'var(--text-primary)',
-          },
-          {
-            label: t('peer.amountRaised') || 'Total Raised',
-            value: formatINR(peerPools.reduce((s, p) => s + p.raisedMarginCurrent, 0)),
-            color: 'var(--accent)',
-          },
-          {
-            label: t('peer.investors') || 'Contributors',
-            value: peerPools.reduce((s, p) => s + p.contributorsCount, 0),
-            color: 'var(--info)',
-          },
-        ].map(({ label, value, color }) => (
-          <div
-            key={label}
-            className="p-4 rounded-xl"
-            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
-          >
-            <div className="metric-label mb-1.5">{label}</div>
-            <div className="text-xl font-700" style={{ color, fontWeight: 700 }}>
-              {value}
-            </div>
+    <div className="space-y-8 pb-16 text-slate-900">
+      
+      {/* Header Banner - Light Theme */}
+      <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-teal-500/10 via-emerald-500/5 to-white border border-teal-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-teal-50 text-teal-800 border border-teal-200 text-xs font-extrabold px-3 py-1 rounded-full flex items-center gap-1.5">
+              <HeartHandshake className="w-3.5 h-3.5 text-teal-600" /> Broker-Free Community Finance
+            </span>
+            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-extrabold px-3 py-1 rounded-full">
+              SCA Verified Peer Pooling
+            </span>
           </div>
-        ))}
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+            {t('peerPoolingTitle')}
+          </h1>
+          <p className="text-xs text-slate-600 max-w-2xl mt-1 leading-relaxed">
+            Eliminating intermediary brokers and predatory moneylenders. Rural peers, relatives, and village SHG cooperatives pool remaining 10% margin money directly to unlock government loan eligibility.
+          </p>
+        </div>
+
+        <button
+          onClick={() => speak(`Peer Micro-Investment Pool. Here rural entrepreneurs can raise missing 10 percent margin money from trusted local community members without brokers.`)}
+          className="px-4 py-2 bg-teal-50 text-teal-800 border border-teal-200 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer"
+        >
+          <Sparkles className="w-4 h-4 text-amber-600" /> Audio Explanation
+        </button>
       </div>
 
       {/* ─── Pool Cards ─── */}
@@ -79,45 +61,24 @@ export default function PeerPooling() {
           return (
             <div
               key={pool.id}
-              className="rounded-xl p-5 space-y-4 transition-all"
-              style={{
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border-default)',
-              }}
+              className="bg-white p-6 rounded-3xl space-y-4 border border-slate-200/90 hover:border-teal-400 transition-all shadow-sm"
             >
               {/* Header */}
               <div className="flex items-start justify-between">
                 <div>
-                  <span
-                    className="text-xs font-600 uppercase tracking-wide"
-                    style={{ color: 'var(--emerald)', fontWeight: 600 }}
-                  >
-                    {pool.category}
-                  </span>
-                  <h3 className="text-lg font-700 mt-0.5" style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
-                    {pool.ventureTitle}
-                  </h3>
-                  <div className="flex items-center gap-1.5 mt-1">
-                    <Users className="w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} />
-                    <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                      {pool.entrepreneurName} · {pool.location}
-                    </span>
-                  </div>
+                  <span className="text-[11px] font-bold text-teal-700 uppercase tracking-wider">{pool.category}</span>
+                  <h3 className="text-xl font-extrabold text-slate-900 mt-1">{pool.ventureTitle}</h3>
+                  <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                    <Users className="w-3.5 h-3.5 text-slate-400" /> {pool.entrepreneurName} ({pool.location})
+                  </p>
                 </div>
-                <span
-                  className="badge flex items-center gap-1 flex-shrink-0"
-                  style={{ background: 'var(--emerald-light)', color: 'var(--emerald)' }}
-                >
-                  <ShieldCheck className="w-3 h-3" />
-                  {t('peer.verified') || 'Verified'}
+
+                <span className="px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-extrabold rounded-full flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-amber-600" /> SCA Verified
                 </span>
               </div>
 
-              {/* Story */}
-              <p
-                className="text-sm leading-relaxed p-3.5 rounded-xl italic"
-                style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)' }}
-              >
+              <p className="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 leading-relaxed">
                 "{pool.story}"
               </p>
 
@@ -136,33 +97,33 @@ export default function PeerPooling() {
               </div>
 
               {/* Progress Bar */}
-              <div>
-                <div className="flex justify-between text-xs mb-1.5" style={{ color: 'var(--text-muted)' }}>
-                  <span>{percentRaised}% {t('peer.fundedSuffix') || 'funded'}</span>
-                  <span>{pool.contributorsCount} {t('peer.contributorsSuffix') || 'contributors'}</span>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-semibold">
+                  <span className="text-slate-500">
+                    Raised: <strong className="text-emerald-700">{formatINR(pool.raisedMarginCurrent)}</strong>
+                  </span>
+                  <span className="text-slate-500">
+                    Target Margin: <strong className="text-amber-700">{formatINR(pool.requiredMarginTotal)}</strong>
+                  </span>
                 </div>
-                <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--bg-elevated)' }}>
+
+                <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden border border-slate-300">
                   <div
-                    className="h-full rounded-full transition-all duration-700"
-                    style={{
-                      width: `${percentRaised}%`,
-                      background: percentRaised >= 80 ? 'var(--emerald)' : 'var(--accent)',
-                    }}
-                  />
+                    className="bg-gradient-to-r from-teal-500 to-emerald-500 h-full rounded-full transition-all duration-500"
+                    style={{ width: `${percentRaised}%` }}
+                  ></div>
+                </div>
+
+                <div className="flex justify-between text-[11px] text-slate-500 font-medium">
+                  <span>{percentRaised}% Funded ({pool.contributorsCount} Peer Contributors)</span>
+                  <span>{pool.daysLeft} Days Remaining</span>
                 </div>
               </div>
 
               {/* CTA */}
               <button
                 onClick={() => setSelectedPoolId(pool.id)}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-600 transition-all"
-                style={{
-                  background: 'var(--text-primary)',
-                  color: 'white',
-                  fontWeight: 600,
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = '#333')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--text-primary)')}
+                className="w-full py-3 rounded-xl text-xs font-extrabold bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <HeartHandshake className="w-4 h-4" />
                 {t('peer.investInPool') || 'Invest in this Pool'}
@@ -174,60 +135,27 @@ export default function PeerPooling() {
 
       {/* ─── Contribution Modal ─── */}
       {selectedPoolId && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)' }}
-        >
-          <div
-            className="relative w-full max-w-sm rounded-2xl p-6 space-y-4"
-            style={{
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--border-default)',
-              boxShadow: 'var(--shadow-lg)',
-            }}
-          >
-            {/* Close */}
-            <button
-              onClick={() => setSelectedPoolId(null)}
-              className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors"
-              style={{ color: 'var(--text-muted)' }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-hover)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div>
-              <h3 className="text-lg font-700 flex items-center gap-2" style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
-                <HeartHandshake className="w-5 h-5" style={{ color: 'var(--emerald)' }} />
-                {t('peer.contributeToPool') || 'Contribute to Pool'}
-              </h3>
-              <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-                {t('peer.contributeDesc') || 'Direct peer transaction. No broker fees or hidden commissions.'}
-              </p>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h3 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+              <HeartHandshake className="w-5 h-5 text-teal-600" />
+              Contribute to Peer Margin Pool
+            </h3>
+            <p className="text-xs text-slate-500">
+              Direct peer transaction. No broker fees or hidden commissions.
+            </p>
 
             {contributionSuccess ? (
-              <div
-                className="p-5 rounded-xl text-center space-y-2"
-                style={{ background: 'var(--emerald-light)', border: '1px solid var(--emerald)30' }}
-              >
-                <CheckCircle2 className="w-8 h-8 mx-auto" style={{ color: 'var(--emerald)' }} />
-                <h4 className="font-700 text-sm" style={{ color: 'var(--emerald)', fontWeight: 700 }}>
-                  {t('peer.investmentSuccess') || 'Investment Successful!'}
-                </h4>
-                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                  {t('peer.investmentSuccessDesc') || 'Campaign total updated in real-time.'}
-                </p>
+              <div className="p-4 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-2xl text-center space-y-2">
+                <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-600" />
+                <h4 className="font-bold text-sm">Micro-Investment Successful!</h4>
+                <p className="text-xs text-slate-600">Updated campaign total in real-time.</p>
               </div>
             ) : (
               <form onSubmit={handleContribute} className="space-y-4">
                 <div>
-                  <label
-                    className="block text-sm font-500 mb-2"
-                    style={{ color: 'var(--text-secondary)', fontWeight: 500 }}
-                  >
-                    {t('peer.contributionAmount') || 'Contribution Amount (₹)'}
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Contribution Amount (₹)
                   </label>
                   <div className="relative">
                     <span
@@ -243,19 +171,7 @@ export default function PeerPooling() {
                       max="10000"
                       value={contributionAmount}
                       onChange={(e) => setContributionAmount(e.target.value)}
-                      style={{
-                        width: '100%',
-                        background: 'var(--bg-input)',
-                        border: '1px solid var(--border-default)',
-                        borderRadius: 'var(--radius-lg)',
-                        padding: '0.625rem 0.875rem 0.625rem 2rem',
-                        fontSize: '1rem',
-                        fontWeight: 700,
-                        color: 'var(--emerald)',
-                        outline: 'none',
-                      }}
-                      onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
-                      onBlur={(e) => (e.target.style.borderColor = 'var(--border-default)')}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-4 py-2.5 text-sm font-bold text-emerald-700 focus:outline-none focus:border-teal-500 focus:bg-white"
                     />
                   </div>
                 </div>
@@ -267,13 +183,11 @@ export default function PeerPooling() {
                       key={amt}
                       type="button"
                       onClick={() => setContributionAmount(amt)}
-                      className="py-2 rounded-lg text-xs font-600 transition-all"
-                      style={{
-                        fontWeight: 600,
-                        background: Number(contributionAmount) === amt ? 'var(--text-primary)' : 'var(--bg-elevated)',
-                        color: Number(contributionAmount) === amt ? 'white' : 'var(--text-secondary)',
-                        border: '1px solid var(--border-subtle)',
-                      }}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border cursor-pointer ${
+                        Number(contributionAmount) === amt
+                          ? 'bg-teal-600 text-white border-teal-500'
+                          : 'bg-slate-50 text-slate-700 border-slate-200'
+                      }`}
                     >
                       ₹{amt}
                     </button>
@@ -284,14 +198,13 @@ export default function PeerPooling() {
                   <button
                     type="button"
                     onClick={() => setSelectedPoolId(null)}
-                    className="btn-secondary flex-1"
+                    className="w-1/2 py-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer"
                   >
                     {t('common.cancel') || 'Cancel'}
                   </button>
                   <button
                     type="submit"
-                    className="btn-primary flex-1"
-                    style={{ borderRadius: 'var(--radius-lg)' }}
+                    className="w-1/2 py-2.5 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-md cursor-pointer"
                   >
                     {t('peer.confirmTransfer') || 'Confirm Transfer'}
                   </button>

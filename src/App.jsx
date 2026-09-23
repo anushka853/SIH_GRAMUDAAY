@@ -7,194 +7,117 @@ import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import ChatWorkspace from './components/ChatWorkspace';
 import LoginModal from './components/LoginModal';
+import GovtSchemesModal from './components/GovtSchemesModal';
+import AirtableWorkflowNav from './components/AirtableWorkflowNav';
 import EntrepreneurPortal from './pages/EntrepreneurPortal';
 import BankPortal from './pages/BankPortal';
 import AdminPortal from './pages/AdminPortal';
 import PeerPooling from './pages/PeerPooling';
-import { resolvePageFromNavId, getNavForRole, getActiveNavId, getDefaultNavId } from './config/navConfig';
+import { Users, HeartHandshake, Calculator, ShieldCheck, Landmark, Sparkles } from 'lucide-react';
 
-const LS_COLLAPSED = 'gramudaay_sidebar_collapsed';
+import ChatGPTStyleSidebar from './components/ChatGPTStyleSidebar';
 
 function MainApp() {
-  const { currentRole } = useAuth();
+  const { currentRole, switchRole } = useAuth();
+  const { t } = useLanguage();
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isGovtSchemesOpen, setIsGovtSchemesOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  
+  // activeView: 'entrepreneur-chat' | 'entrepreneur-reports' | 'peer-pool' | 'bank-portal' | 'admin-portal'
+  const [activeView, setActiveView] = useState('entrepreneur-chat');
+  const [activePhase, setActivePhase] = useState('phase1');
 
-  // ── UI state ──────────────────────────────────────────────
-  const [hasStarted, setHasStarted]           = useState(false);
-  const [isLoginOpen, setIsLoginOpen]         = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // Sidebar collapse — persisted in localStorage
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
-    try { return localStorage.getItem(LS_COLLAPSED) === 'true'; }
-    catch { return false; }
-  });
-
-  // Routing — activePage drives which component renders
-  // activeNavId tracks what's highlighted in the sidebar
-  const [activePage, setActivePage]   = useState(() => getDefaultNavId(currentRole));
-  const [activeNavId, setActiveNavId] = useState(() => getDefaultNavId(currentRole));
-
-  // Sync collapse preference to localStorage
-  useEffect(() => {
-    try { localStorage.setItem(LS_COLLAPSED, String(isSidebarCollapsed)); }
-    catch { /* ignore */ }
-  }, [isSidebarCollapsed]);
-
-  // Reset active nav when role changes (synchronous render-time update)
-  const [prevRole, setPrevRole] = useState(currentRole);
-  if (currentRole !== prevRole) {
-    setPrevRole(currentRole);
-    const defaultId = getDefaultNavId(currentRole);
-    setActiveNavId(defaultId);
-    setActivePage(resolvePageFromNavId(defaultId, currentRole).page);
-  }
-
-  // ── Handlers ──────────────────────────────────────────────
-  const handleNavItemClick = (navId) => {
-    setActiveNavId(navId);
-
-    // Special actions that don't navigate
-    if (navId === 'language') {
-      alert('Language Settings (Placeholder)');
-      return;
-    }
-    if (navId === 'profile') {
-      setIsLoginOpen(true);
-      return;
-    }
-    if (navId === 'help') {
-      alert('Help & Support (Placeholder)');
-      return;
-    }
-
-    const { page } = resolvePageFromNavId(navId, currentRole);
-    setActivePage(page);
-  };
-
-  // Legacy compatibility — some sub-components may call onNavigate(pageId) directly
-  const handleNavigate = (page) => {
-    setActivePage(page);
-    const newNavId = getActiveNavId(page, currentRole);
-    setActiveNavId(newNavId);
-  };
-
-  // ── Render the correct page ───────────────────────────────
-  const renderPage = () => {
-    switch (activePage) {
-      // ChatWorkspace handles Dashboards & Insights
-      case 'dashboard':
-      case 'credit-dashboard':
-      case 'national-dashboard':
-      case 'market-intel':
-      case 'market-intelligence':
-      case 'market-activity':
-      case 'regional-metrics':
-      case 'voice-advisor':
-      case 'ai-counter':
-      case 'risk-signals':
-      case 'feasibility-reports':
-      case 'enterprise-categories':
-        return <ChatWorkspace />;
-        
-      // Entrepreneur Portal 
-      case 'feasibility':
-      case 'assessment':
-      case 'financial-structuring':
-      case 'loan-recommendation':
-      case 'repayment-plan':
-      case 'my-applications':
-      case 'funding-status':
-      case 'enterprise':
-      case 'schemes':
-        return <EntrepreneurPortal activePage={activePage} />;
-        
-      // Bank Portal
-      case 'bank-portal':
-      case 'bank-scheme':
-      case 'pending-apps':
-      case 'under-review':
-      case 'approved':
-      case 'rejected':
-      case 'loan-portfolio':
-      case 'regional-activity':
-      case 'documents':
-        return <BankPortal activePage={activePage} />;
-        
-      // Admin Portal
-      case 'admin-portal':
-      case 'funding-dist':
-      case 'scheme-utilization':
-      case 'active-users':
-      case 'system-alerts':
-      case 'exports':
-      case 'analytics':
-        return <AdminPortal activePage={activePage} />;
-        
-      // Peer Pooling
-      case 'peer-pooling':
-      case 'peer-investment':
-      case 'funding-opps':
-      case 'alerts':
-        return <PeerPooling activePage={activePage} />;
-        
-      default:
-        // fallback based on role
-        if (currentRole === 'bank') return <BankPortal activePage={activePage} />;
-        if (currentRole === 'admin') return <AdminPortal activePage={activePage} />;
-        return <ChatWorkspace />;
+  const handlePhaseChange = (phaseId) => {
+    setActivePhase(phaseId);
+    if (phaseId === 'phase1') {
+      switchRole('entrepreneur');
+      setActiveView('entrepreneur-chat');
+    } else if (phaseId === 'phase2' || phaseId === 'phase3') {
+      switchRole('bank');
+      setActiveView('bank-portal');
+    } else if (phaseId === 'phase4') {
+      switchRole('admin');
+      setActiveView('admin-portal');
     }
   };
 
-  // ── Landing page ──────────────────────────────────────────
-  if (!hasStarted) {
-    return <LandingPage onStart={() => setHasStarted(true)} />;
-  }
-
-  const navConfig = getNavForRole(currentRole);
+  const handleSelectSidebarView = (viewKey) => {
+    setActiveView(viewKey);
+    if (viewKey === 'entrepreneur-chat' || viewKey === 'entrepreneur-reports' || viewKey === 'peer-pool') {
+      switchRole('entrepreneur');
+      setActivePhase('phase1');
+    } else if (viewKey === 'bank-portal') {
+      switchRole('bank');
+      setActivePhase('phase2');
+    } else if (viewKey === 'admin-portal') {
+      switchRole('admin');
+      setActivePhase('phase4');
+    }
+  };
 
   return (
-    <div
-      className="flex h-screen overflow-hidden"
-      style={{ background: 'var(--bg-page)' }}
-    >
-      {/* ── Sidebar ── */}
-      <Sidebar
-        activePage={activePage}
-        onNavigate={handleNavigate}
-        activeNavId={activeNavId}
-        onNavItemClick={handleNavItemClick}
-        isCollapsed={isSidebarCollapsed}
-        onToggleCollapse={() => setIsSidebarCollapsed((v) => !v)}
-        isMobileOpen={isMobileMenuOpen}
-        onMobileClose={() => setIsMobileMenuOpen(false)}
+    <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-emerald-600 selection:text-white">
+      
+      {/* ChatGPT-Style Left Sidebar */}
+      <ChatGPTStyleSidebar
+        activeView={activeView}
+        onSelectView={handleSelectSidebarView}
         onOpenLogin={() => setIsLoginOpen(true)}
+        onOpenGovtSchemes={() => setIsGovtSchemesOpen(true)}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />
 
-      {/* ── Main content ── */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Topbar — mobile + desktop */}
-        <Topbar
-          onMenuClick={() => setIsMobileMenuOpen(true)}
-          onOpenLogin={() => setIsLoginOpen(true)}
-          activeNavId={activeNavId}
-          navConfig={navConfig}
-        />
+      {/* Main App Layout Offset by Sidebar */}
+      <div className={`transition-all duration-300 flex flex-col justify-between min-h-screen ${
+        isSidebarCollapsed ? 'ml-16' : 'ml-64'
+      }`}>
+        <div>
+          <Navbar
+            onOpenLogin={() => setIsLoginOpen(true)}
+            onOpenGovtSchemes={() => setIsGovtSchemesOpen(true)}
+          />
 
-        {/* Page content */}
-        <main
-          id="main-content"
-          tabIndex={-1}
-          className="flex-1 overflow-y-auto scrollbar-thin"
-          aria-label="Main content"
-        >
-          <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-6xl mx-auto w-full">
-            {renderPage()}
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12 space-y-6">
+            
+            {/* Top Operational Workflow Phase Navigator */}
+            <AirtableWorkflowNav activePhase={activePhase} onPhaseChange={handlePhaseChange} />
+
+            {/* Render Active View based on Sidebar & Role Selection */}
+            {currentRole === 'entrepreneur' && (
+              activeView === 'peer-pool' ? (
+                <PeerPooling />
+              ) : activeView === 'entrepreneur-reports' ? (
+                <EntrepreneurPortal initialSubTab="feasibility" />
+              ) : (
+                <EntrepreneurPortal initialSubTab="chat" />
+              )
+            )}
+
+            {currentRole === 'bank' && <BankPortal />}
+            {currentRole === 'admin' && <AdminPortal />}
+
+          </main>
+        </div>
+
+        {/* Footer */}
+        <footer className="border-t border-slate-200 bg-white py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <div className="flex items-center gap-2">
+              <Landmark className="w-4 h-4 text-emerald-600" />
+              <span className="font-extrabold text-slate-800">GramUday AI</span> — National Rural Enterprise Feasibility & Credit Advisory System
+            </div>
+            <div className="text-center md:text-right">
+              State Channelizing Agencies (SCAs) Guidelines | Micro Finance (≤ ₹1.40L) & Term Loan (≤ ₹50L) Scheme Router
+            </div>
           </div>
-        </main>
+        </footer>
       </div>
 
-      {/* ── Login / Profile Modal ── */}
+      {/* Modals */}
       <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+      <GovtSchemesModal isOpen={isGovtSchemesOpen} onClose={() => setIsGovtSchemesOpen(false)} />
     </div>
   );
 }

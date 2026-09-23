@@ -1,30 +1,73 @@
 import React, { createContext, useContext, useState } from 'react';
 import { INITIAL_BANK_APPLICATIONS, INITIAL_PEER_POOLS } from '../utils/mockData';
 import { generateAICounterProposal } from '../utils/aiFeasibilityEngine';
+import { PREDEFINED_GOVT_SCHEMES } from '../utils/financialEngine';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [currentRole, setCurrentRole] = useState('entrepreneur'); // 'entrepreneur' | 'bank' | 'admin'
   const [currentUser, setCurrentUser] = useState({
     name: 'Arjun Das',
     businessIdea: 'Green Valley Foods',
     age: 34,
     contact: '+91 98765 43210',
-    address: 'Demo Village, Silchar Block',
-    location: { villageName: 'Demo Village', blockName: 'Silchar Block', districtName: 'Cachar', stateName: 'Assam' }
+    address: 'At Post Sualkuchi Silk Cluster, Kamrup Rural',
+    location: { villageName: 'Sualkuchi', blockName: 'Kamrup Rural', districtName: 'Kamrup', stateName: 'Assam' }
   });
+
+  // Dynamic Government Schemes database initialized with predefined schemes
+  const [govtSchemes, setGovtSchemes] = useState(PREDEFINED_GOVT_SCHEMES);
 
   const [applications, setApplications] = useState(INITIAL_BANK_APPLICATIONS);
   const [peerPools, setPeerPools] = useState(INITIAL_PEER_POOLS);
   const [counterProposals, setCounterProposals] = useState([]);
 
-  // Login role switcher
+  // System Admin action: Add new government scheme dynamically
+  const addGovtScheme = (newScheme) => {
+    const key = newScheme.key || `SCHEME_${Date.now()}`;
+    const schemeObj = {
+      key,
+      name: newScheme.name,
+      category: newScheme.category || 'Government Subsidy',
+      maxProjectCost: Number(newScheme.maxProjectCost) || 1000000,
+      interestRate: Number(newScheme.interestRate) || 7.0,
+      tenureYears: Number(newScheme.tenureYears) || 5,
+      moratoriumMonths: Number(newScheme.moratoriumMonths) || 6,
+      subsidyPercent: Number(newScheme.subsidyPercent) || 0,
+      collateralRequired: Boolean(newScheme.collateralRequired),
+      description: newScheme.description || 'Newly added government assistance scheme.'
+    };
+
+    // Update state object
+    setGovtSchemes((prev) => ({
+      ...prev,
+      [key]: schemeObj
+    }));
+
+    // Also inject into module PREDEFINED_GOVT_SCHEMES so calculation engines pick it up!
+    PREDEFINED_GOVT_SCHEMES[key] = schemeObj;
+    return schemeObj;
+  };
+
+  // Login & role switcher with authentication
   const switchRole = (role, userDetails = null) => {
+    setIsAuthenticated(true);
     setCurrentRole(role);
     if (userDetails) {
       setCurrentUser(userDetails);
     }
+  };
+
+  const login = (role, userDetails) => {
+    setIsAuthenticated(true);
+    setCurrentRole(role);
+    setCurrentUser(userDetails);
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
   };
 
   // Submit new user feasibility application to Bank Queue
@@ -98,8 +141,14 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
+        isAuthenticated,
         currentRole,
         currentUser,
+        govtSchemes,
+        addGovtScheme,
+        switchRole,
+        login,
+        logout,
         applications,
         peerPools,
         counterProposals,

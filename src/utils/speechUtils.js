@@ -4,17 +4,18 @@
 export const SPEECH_LANG_MAP = {
   en: 'en-IN',
   hi: 'hi-IN',
+  as: 'as-IN',
+  bn: 'bn-IN',
   mr: 'mr-IN',
   ta: 'ta-IN',
   te: 'te-IN',
-  bn: 'bn-IN',
   gu: 'gu-IN',
   kn: 'kn-IN'
 };
 
 /**
  * Voice Recognition (Speech-to-Text)
- * @param {string} langCode - Language code ('en', 'hi', 'mr', etc.)
+ * @param {string} langCode - Language code ('en', 'hi', 'as', 'bn', etc.)
  * @param {function} onResult - Callback receiving recognized text string
  * @param {function} onError - Callback on error
  * @param {function} onEnd - Callback when recognition stops

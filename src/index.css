@@ -17,17 +17,22 @@
 
 @layer base {
   body {
-    @apply antialiased;
-    font-family: var(--font-family-primary);
-    font-size: var(--font-size-md);
-    line-height: 1.6;
-    background-color: #F8F6F2;
-    color: #1A1A1A;
+    @apply bg-slate-50 text-slate-900 antialiased font-sans min-h-screen selection:bg-emerald-600 selection:text-white;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.06) 0px, transparent 45%),
+      radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 45%),
+      radial-gradient(at 50% 100%, rgba(245, 158, 11, 0.04) 0px, transparent 50%);
+    background-attachment: fixed;
   }
 
-  * {
-    box-sizing: border-box;
-  }
+/* Light Mode Card & Glassmorphism Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+}
 
   h1, h2, h3, h4, h5, h6 {
     line-height: 1.2;
@@ -35,28 +40,40 @@
   }
 }
 
-/* ============================================================
-   DESIGN TOKENS — GramUday AI Light Mode
-   ============================================================ */
-:root {
-  /* Background Layers */
-  --bg-page:       #F8F6F2;
-  --bg-sidebar:    #FFFFFF;
-  --bg-surface:    #FFFFFF;
-  --bg-elevated:   #F3F1EC;
-  --bg-hover:      #EFECE6;
-  --bg-input:      #FAFAF8;
+.glass-panel-hover:hover {
+  background: #ffffff;
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.12);
+  transform: translateY(-2px);
+}
 
-  /* Text */
-  --text-primary:   #1A1A1A;
-  --text-secondary: #6B6B6B;
-  --text-muted:     #9A9A9A;
-  --text-inverse:   #FFFFFF;
+/* Card Container Standard */
+.sih-card {
+  background-color: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 1.5rem; /* 24px */
+  padding: 1.75rem;
+  box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.04);
+}
 
-  /* Borders */
-  --border-default: #E7E3DE;
-  --border-strong:  #D5D0CA;
-  --border-subtle:  #F0ECE7;
+/* Text Gradients */
+.emerald-gradient-text {
+  background: linear-gradient(135deg, #059669 0%, #10b981 50%, #d97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.blue-gradient-text {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #059669 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.amber-gradient-text {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 
   /* Accent — restrained indigo */
   --accent:         #5B21B6;
@@ -64,19 +81,14 @@
   --accent-light:   #EDE9FE;
   --accent-text:    #5B21B6;
 
-  /* Status */
-  --success:        #16A34A;
-  --success-light:  #DCFCE7;
-  --warning:        #D97706;
-  --warning-light:  #FEF3C7;
-  --danger:         #DC2626;
-  --danger-light:   #FEE2E2;
-  --info:           #2563EB;
-  --info-light:     #DBEAFE;
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
 
-  /* Teal/Emerald for financial positive */
-  --emerald:        #059669;
-  --emerald-light:  #D1FAE5;
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
 
   /* Spacing & Shape */
   --radius-sm:  4px;
@@ -95,10 +107,10 @@
   --sidebar-width: 264px;
   --sidebar-collapsed-width: 72px;
 
-  /* Transitions */
-  --transition-fast:   150ms ease;
-  --transition-normal: 220ms ease;
-  --transition-slow:   300ms ease;
+/* Pulse Glow Animation */
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
 }
 
 /* ============================================================
